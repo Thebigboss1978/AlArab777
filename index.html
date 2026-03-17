@@ -16,108 +16,28 @@
 </head>
 <body>
 
-    <!-- Sovereign ID & Context -->
+    <!-- Sovereign ID & Context (Hidden) -->
     <div id="sovereign-id" data-identity="ID:ALR777|OWNER:SHARIF_ALSHAWISH_ABUELABD|MANAGER_WHATSAPP:+201288063037|LOC:GIZA_NZLT_SMN|HQ:SKY_PYR_HTL|BRAND:GIZA7_LOCAL_INSIDE|STATUS:LEDGER_SYNC_ACTIVE|REF:Step-3011|ENV:PROD|TS:20260317T0415Z|TOPO:VOICE>STT>CHATWOOT>OLLAMA>FFMPEG_GIZA7|MODE:TURBO_1000X|SIGNAL:GIZA7_Sovereign|PERSONA:malika" style="display: none;"></div>
 
-    <!-- Hidden Admin Dot -->
-    <div id="admin-dot" title="Hidden Admin"></div>
-    <div id="overlay"></div>
+    <!-- The Blank Playground -->
+    <div id="playground" style="width: 100vw; height: 100vh; background: #000; cursor: none;"></div>
 
-    <div id="orb-container">
-        <h1 id="ui-title">Sovereign OS</h1>
-        <p id="ui-subtitle">Sovereign Intelligence | AlArab 777</p>
-    </div>
+    <!-- Hidden Core Trigger (Double-Click Anywhere) -->
+    <script>
+        document.body.ondblclick = () => {
+            window.location.href = 'AQUAMAN_CORE.html';
+        };
+    </script>
 
-    <!-- Admin Panel (Password Protected) -->
-    <div id="admin-panel">
-        <div id="admin-login">
-            <h2>ADMIN ACCESS</h2>
-            <input type="password" id="admin-pwd" placeholder="Enter Password">
-            <button id="admin-unlock">Unlock</button>
-            <div id="admin-error"></div>
-        </div>
-
-        <div id="admin-settings" style="display: none;">
-            <h2>SYSTEM CONFIGURATION</h2>
-
-            <div class="setting-group">
-                <label>Active Provider</label>
-                <select id="cfg-provider">
-                    <option value="openai">OpenAI Realtime (GPT-4o)</option>
-                    <option value="gemini">Google Gemini Live (2.0 Flash)</option>
-                    <option value="elevenlabs">ElevenLabs (Conversational AI)</option>
-                    <option value="hume">Hume EVI (Empathic Voice)</option>
-                </select>
-            </div>
-
-            <div class="setting-group">
-                <label>Intelligence Level / Speed</label>
-                <select id="cfg-model">
-                    <option value="pro">Pro (Full context)</option>
-                    <option value="flash">Flash (Speed)</option>
-                </select>
-            </div>
-
-            <div class="setting-group">
-                <label>API Key Override (Activate Pipe)</label>
-                <input type="password" id="cfg-custom-key" placeholder="sk-...">
-                <small style="color: #666; font-size: 10px;">Saved locally. Overrides Env vars.</small>
-            </div>
-
-            <div class="setting-group">
-                <label>Model Override (Open Tunnel)</label>
-                <input type="text" id="cfg-custom-model" placeholder="e.g. gpt-4o-canary">
-                <small style="color: #666; font-size: 10px;">Leave empty to use defaults.</small>
-            </div>
-
-            <div class="setting-group" id="grp-11labs-agent" style="display: none;">
-                <label>ElevenLabs Agent ID</label>
-                <input type="text" id="cfg-11labs-agent" placeholder="agent_...">
-                <small style="color: #666; font-size: 10px;">Required for ElevenLabs provider.</small>
-            </div>
-
-            <button id="save-settings">Apply & Reboot</button>
-        </div>
-    </div>
-
-    <!-- Main Voice Button -->
-    <div id="voice-btn">
-        <div class="ripple-ring"></div>
-        <div class="ripple-ring"></div>
-        <div class="ripple-ring"></div>
-        <span class="btn-icon">🎙</span>
-    </div>
-
-    <!-- Status -->
-    <div id="status-area">
-        <div id="status-state" class="state-idle">DOUBLE-CLICK TO START</div>
-        <div id="status-detail">Ready</div>
-    </div>
-
-    <!-- Provider Badge -->
-    <div id="provider-badge"></div>
-
-    <!-- Log Toggle -->
-    <div id="log-toggle">▲ LOG</div>
-    <div id="log-panel">
-        <div id="log-content"></div>
-    </div>
-
-    <!-- MODULAR JAVASCRIPT ENGINE                 -->
-    <!-- ═══════════════════════════════════════════ -->
-    
+    <!-- Essential Scripts -->
     <script src="js/sovereign.js"></script>
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/brain.js"></script>
-    
-    <!-- Providers -->
     <script src="js/providers/openai.js"></script>
     <script src="js/providers/gemini.js"></script>
     <script src="js/providers/elevenlabs.js"></script>
     <script src="js/providers/hume.js"></script>
-
-    <!-- Main Orchestrator -->
     <script src="js/app.js"></script>
 
 </body>

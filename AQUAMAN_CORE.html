@@ -98,43 +98,79 @@
 <body>
     <div id="aquaman-shell">
         <header>
-            <h1 style="margin:0; font-weight: 200; font-size: 3rem;">AQUAMAN <span style="color: var(--gold);">777</span></h1>
-            <p style="opacity: 0.5;">Sovereign Command Center | Unified Spine</p>
+            <h1>AQUAMAN CORE <span style="color: var(--gold);">V15</span></h1>
+            <p style="font-size: 0.5rem; opacity: 0.3;">SOVEREIGN OS | ALPHA COMMAND</p>
         </header>
 
-        <div id="orb"></div>
-
-        <div id="arsenal">
-            <div class="tool-card" onclick="window.open('http://localhost:3000')">🌐 CHATWOOT</div>
-            <div class="tool-card" onclick="window.open('http://localhost:11434')">🧠 OLLAMA</div>
-            <div class="tool-card" onclick="window.open('http://localhost:1234')">⚡ LM STUDIO</div>
-            <div class="tool-card" onclick="window.open('http://localhost:8000')">👁️ GPT4ALL</div>
+        <div id="orb">
+            <div class="orb-core"></div>
         </div>
 
+        <!-- Hidden Admin Dot -->
+        <div id="admin-dot" title="Hidden Admin" style="position: absolute; bottom: 10px; right: 10px; width: 5px; height: 5px; background: rgba(212,175,55,0.2); cursor: pointer; border-radius: 50%;"></div>
+        
+        <div id="arsenal">
+            <a href="http://localhost:3000" class="tool-link" target="_blank">CHATWOOT</a>
+            <a href="http://localhost:11434" class="tool-link" target="_blank">OLLAMA</a>
+            <a href="http://localhost:1234" class="tool-link" target="_blank">LM STUDIO</a>
+            <a href="https://github.com/Thebigboss1978" class="tool-link" target="_blank">COMMANDER</a>
+        </div>
+
+        <!-- Voice Core (Moved from Index) -->
+        <div id="voice-btn" style="position: relative; margin: 20px auto; cursor: pointer; text-align: center; font-size: 2rem;">🎙</div>
+        
         <div id="status-hud">
-            <div id="state">STANDBY</div>
-            <div id="persona" style="color: var(--gold);">MALIKA NASHMIAH</div>
+            <div id="status-state">STANDBY</div>
+            <div id="status-detail" style="font-size: 0.5rem; opacity: 0.5;">Ready</div>
+            <div id="persona" style="color: var(--gold); font-size: 0.7rem;">MALIKA NASHMIAH</div>
+        </div>
+
+        <!-- Admin Panel (Password Protected) -->
+        <div id="admin-panel" class="glass-panel" style="display: none; position: absolute; inset: 20px; background: rgba(0,0,0,0.9); z-index: 1000; padding: 40px; border-radius: 20px;">
+            <div id="admin-login">
+                <h2>ADMIN ACCESS</h2>
+                <input type="password" id="admin-pwd" placeholder="Enter Password">
+                <button id="admin-unlock">Unlock</button>
+            </div>
+            <div id="admin-settings" style="display: none;">
+                <h2>SYSTEM CONFIG</h2>
+                <select id="cfg-provider"><option value="openai">OpenAI</option><option value="gemini">Gemini</option><option value="elevenlabs">ElevenLabs</option></select>
+                <input type="text" id="cfg-custom-model" placeholder="Model Override">
+                <input type="password" id="cfg-custom-key" placeholder="API Key Override">
+                <input type="text" id="cfg-11labs-agent" placeholder="ElevenLabs Agent ID">
+                <button id="save-settings">Save & Reboot</button>
+            </div>
+        </div>
+
+        <!-- Logs -->
+        <div id="log-panel" style="display: none;">
+            <div id="log-content"></div>
         </div>
     </div>
 
-    <!-- The Voice Interface flows through here as the hidden spine -->
-    <iframe src="index.html" id="voice-spine"></iframe>
+    <!-- Essential Scripts (Same as Index, but as the Master Controller) -->
+    <div id="sovereign-id" data-identity="ID:ALR777|OWNER:SHARIF_ALSHAWISH_ABUELABD|...|PERSONA:malika" style="display: none;"></div>
+    
+    <script src="js/sovereign.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/brain.js"></script>
+    <script src="js/providers/openai.js"></script>
+    <script src="js/providers/gemini.js"></script>
+    <script src="js/providers/elevenlabs.js"></script>
+    <script src="js/providers/hume.js"></script>
+    <script src="js/app.js"></script>
 
     <script>
-        // Aquaman Still Healing Bridge
-        const spine = document.getElementById('voice-spine').contentWindow;
-        
-        function syncState() {
-            if (spine.currentState) {
-                document.getElementById('state').innerText = spine.currentState;
-                document.getElementById('persona').innerText = spine.AGENT_BRAIN?.name || 'INITIALIZING...';
+        // Aquaman Custom Bindings
+        document.getElementById('admin-dot').onclick = () => {
+            document.getElementById('admin-panel').style.display = 'block';
+        };
+        document.getElementById('admin-unlock').onclick = () => {
+            if(document.getElementById('admin-pwd').value === '777') {
+                document.getElementById('admin-login').style.display = 'none';
+                document.getElementById('admin-settings').style.display = 'block';
             }
-            requestAnimationFrame(syncState);
-        }
-        
-        window.onload = () => {
-            syncState();
-            console.log("Aquaman Shell Active. Spine connected.");
         };
     </script>
 </body>

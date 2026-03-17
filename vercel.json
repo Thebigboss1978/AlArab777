@@ -3,8 +3,8 @@
   "version": 2,
   "public": true,
   "routes": [
+    { "src": "/cp", "dest": "AQUAMAN_CORE.html" },
     { "src": "/api7/(.*)", "dest": "js/app.js" },
-    { "src": "/cp/(.*)", "dest": "index.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
