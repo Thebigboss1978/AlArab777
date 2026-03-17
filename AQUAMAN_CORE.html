@@ -98,59 +98,65 @@
 <body>
     <div id="aquaman-shell">
         <header>
-            <h1>AQUAMAN CORE <span style="color: var(--gold);">V15</span></h1>
-            <p style="font-size: 0.5rem; opacity: 0.3;">SOVEREIGN OS | ALPHA COMMAND</p>
+            <h1>AQUAMAN CORE <span style="color: var(--gold);">V17</span></h1>
+            <p style="font-size: 0.6rem; letter-spacing: 0.3rem; opacity: 0.4;">SOVEREIGN NEURAL BACKBONE</p>
         </header>
 
         <div id="orb">
             <div class="orb-core"></div>
         </div>
 
-        <!-- Hidden Admin Dot -->
-        <div id="admin-dot" title="Hidden Admin" style="position: absolute; bottom: 10px; right: 10px; width: 5px; height: 5px; background: rgba(212,175,55,0.2); cursor: pointer; border-radius: 50%;"></div>
-        
         <div id="arsenal">
             <a href="http://localhost:3000" class="tool-link" target="_blank">CHATWOOT</a>
             <a href="http://localhost:11434" class="tool-link" target="_blank">OLLAMA</a>
             <a href="http://localhost:1234" class="tool-link" target="_blank">LM STUDIO</a>
-            <a href="https://github.com/Thebigboss1978" class="tool-link" target="_blank">COMMANDER</a>
+            <a href="https://github.com/Thebigboss1978" class="tool-link" target="_blank">GIT HUB</a>
         </div>
 
-        <!-- Voice Core (Moved from Index) -->
-        <div id="voice-btn" style="position: relative; margin: 20px auto; cursor: pointer; text-align: center; font-size: 2rem;">🎙</div>
-        
-        <div id="status-hud">
-            <div id="status-state">STANDBY</div>
-            <div id="status-detail" style="font-size: 0.5rem; opacity: 0.5;">Ready</div>
-            <div id="persona" style="color: var(--gold); font-size: 0.7rem;">MALIKA NASHMIAH</div>
+        <!-- The Bone: Functional Voice Interface -->
+        <div id="voice-btn-container">
+            <div id="voice-btn">🎙</div>
+            <div id="status-hud">
+                <div id="status-state">STANDBY</div>
+                <div id="status-detail">READY FOR COMMAND</div>
+                <div id="persona" style="color: var(--gold);">MALIKA NASHMIAH</div>
+            </div>
         </div>
 
-        <!-- Admin Panel (Password Protected) -->
-        <div id="admin-panel" class="glass-panel" style="display: none; position: absolute; inset: 20px; background: rgba(0,0,0,0.9); z-index: 1000; padding: 40px; border-radius: 20px;">
+        <!-- Hidden Admin Dot -->
+        <div id="admin-dot" onclick="openAdmin()">.</div>
+
+        <!-- Admin Overlay -->
+        <div id="admin-panel" class="glass-panel" style="display: none;">
             <div id="admin-login">
-                <h2>ADMIN ACCESS</h2>
-                <input type="password" id="admin-pwd" placeholder="Enter Password">
-                <button id="admin-unlock">Unlock</button>
+                <h2>NEURAL ACCESS</h2>
+                <input type="password" id="admin-pwd" placeholder="777">
+                <button id="admin-unlock">UNLOCK</button>
             </div>
             <div id="admin-settings" style="display: none;">
-                <h2>SYSTEM CONFIG</h2>
-                <select id="cfg-provider"><option value="openai">OpenAI</option><option value="gemini">Gemini</option><option value="elevenlabs">ElevenLabs</option></select>
-                <input type="text" id="cfg-custom-model" placeholder="Model Override">
-                <input type="password" id="cfg-custom-key" placeholder="API Key Override">
-                <input type="text" id="cfg-11labs-agent" placeholder="ElevenLabs Agent ID">
-                <button id="save-settings">Save & Reboot</button>
+                <h2>CORE CONFIG</h2>
+                <div class="setting-group">
+                    <label>Engine</label>
+                    <select id="cfg-provider"><option value="openai">OpenAI</option><option value="gemini">Gemini</option><option value="elevenlabs">ElevenLabs</option></select>
+                </div>
+                <div class="setting-group">
+                    <label>Key Override</label>
+                    <input type="password" id="cfg-custom-key" placeholder="sk-...">
+                </div>
+                <button id="save-settings">APPLY</button>
             </div>
         </div>
 
-        <!-- Logs -->
+        <!-- Logs Container (Hidden by Default) -->
         <div id="log-panel" style="display: none;">
-            <div id="log-content"></div>
+            <pre id="log-content"></pre>
         </div>
     </div>
 
-    <!-- Essential Scripts (Same as Index, but as the Master Controller) -->
-    <div id="sovereign-id" data-identity="ID:ALR777|OWNER:SHARIF_ALSHAWISH_ABUELABD|...|PERSONA:malika" style="display: none;"></div>
-    
+    <!-- Hidden Identity Block -->
+    <div id="sovereign-id" data-identity="ID:ALR777|OWNER:SHARIF_ALSHAWISH_ABUELABD|MANAGER_WHATSAPP:+201288063037|LOC:GIZA_NZLT_SMN|HQ:SKY_PYR_HTL|BRAND:GIZA7_LOCAL_INSIDE|STATUS:NEURAL_CORE_ACTIVE|REF:V17|ENV:PROD|MODE:TURBO|PERSONA:malika" style="display: none;"></div>
+
+    <!-- The Nerves (Functional Logic) -->
     <script src="js/sovereign.js"></script>
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
@@ -162,10 +168,9 @@
     <script src="js/app.js"></script>
 
     <script>
-        // Aquaman Custom Bindings
-        document.getElementById('admin-dot').onclick = () => {
-            document.getElementById('admin-panel').style.display = 'block';
-        };
+        function openAdmin() {
+            document.getElementById('admin-panel').style.display = 'flex';
+        }
         document.getElementById('admin-unlock').onclick = () => {
             if(document.getElementById('admin-pwd').value === '777') {
                 document.getElementById('admin-login').style.display = 'none';
