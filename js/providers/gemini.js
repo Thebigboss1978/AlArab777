@@ -13,7 +13,7 @@ async function startGemini() {
         // Send setup message
         const setup = {
             setup: {
-                model: `models/${config.model || 'gemini-2.0-flash-exp'}`,
+                model: config.model.startsWith('models/') ? config.model : `models/${config.model}`,
                 generation_config: {
                     response_modalities: ["AUDIO"],
                     speech_config: {

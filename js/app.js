@@ -55,7 +55,10 @@ function loadConfig() {
 
         // Fetch API Key from environment based on selected provider
         const envKeyName = `${cfg.provider.toUpperCase()}_API_KEY`;
-        cfg.apiKey = window[envKeyName] || window[`VITE_${envKeyName}`] || localStorage.getItem('alarab777_api_key') || '';
+        // Open Key Resolution (Ka'b al-Daftar)
+        // Check localStorage first (from Admin Panel), then Environment
+        const envKey = window[envKeyName] || window[`VITE_${envKeyName}`] || '';
+        cfg.apiKey = localStorage.getItem(`alarab777_custom_key_${cfg.provider}`) || envKey || cfg.apiKey;
         
     } catch(e) {}
     
@@ -72,6 +75,7 @@ function saveSettings() {
     localStorage.setItem('alarab777_voice_provider', config.provider);
     localStorage.setItem('alarab777_intelligence_level', config.level);
     localStorage.setItem('alarab777_custom_model', document.getElementById('cfg-custom-model').value.trim());
+    localStorage.setItem(`alarab777_custom_key_${config.provider}`, document.getElementById('cfg-custom-key').value.trim());
     
     // Reboot with new resolved settings
     config = loadConfig();
@@ -86,6 +90,7 @@ function populateSettingsUI() {
     document.getElementById('cfg-provider').value = config.provider || 'openai';
     document.getElementById('cfg-model').value = config.level || 'pro';
     document.getElementById('cfg-custom-model').value = localStorage.getItem('alarab777_custom_model') || '';
+    document.getElementById('cfg-custom-key').value = localStorage.getItem(`alarab777_custom_key_${config.provider}`) || '';
 }
 
 function openAdminPanel() {

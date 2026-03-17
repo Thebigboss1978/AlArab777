@@ -12,7 +12,7 @@ async function startOpenAI() {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            model: config.model || 'gpt-4o-realtime-preview-2024-12-17',
+            model: config.model,
             voice: 'verse',
             instructions: config.systemPrompt,
             input_audio_transcription: { model: 'whisper-1' },
@@ -69,7 +69,7 @@ async function startOpenAI() {
     await peerConnection.setLocalDescription(offer);
 
     // 5. Send to OpenAI
-    const sdpResp = await fetch(`https://api.openai.com/v1/realtime?model=${config.model || 'gpt-4o-realtime-preview-2024-12-17'}`, {
+    const sdpResp = await fetch(`https://api.openai.com/v1/realtime?model=${config.model}`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${ephemeralKey}`,
