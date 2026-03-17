@@ -61,7 +61,7 @@ function loadConfig() {
     } catch(e) {}
     
     if (cfg.persona) {
-        cfg.systemPrompt = cfg.persona.instruction;
+        cfg.systemPrompt = window.buildSystemPrompt ? window.buildSystemPrompt() : cfg.persona.instructions;
     }
     return cfg;
 }
