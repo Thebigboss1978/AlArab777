@@ -32,23 +32,3 @@ window.PERSONAS = {
         instruction: "أنتِ النشمية. صوت القوة والبادية. حارسة الحدود الرقمية."
     }
 };
-
-/**
- * RESOLVE CURRENT BRANCH
- * Extracts localized info from the Sovereign ID link.
- */
-window.resolveSovereignIdentity = () => {
-    const idDiv = document.getElementById('sovereign-id');
-    if (!idDiv) return {};
-    
-    const identityStr = idDiv.getAttribute('data-identity') || "";
-    const parts = identityStr.split('|');
-    const identity = {};
-    
-    parts.forEach(part => {
-        const [key, value] = part.split(':');
-        if (key && value) identity[key] = value;
-    });
-    
-    return identity;
-};
