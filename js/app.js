@@ -216,9 +216,17 @@ async function startSession() {
                 break;
         }
     } catch (err) {
-        setState(STATE.ERROR, `Failed to connect: ${err.message}`);
-        log(`Connection error: ${err.message}`, 'error');
-        isSessionActive = false;
+        log(`Connection error with ${provider}: ${err.message}`, 'error');
+        
+        // Still Healing Logic: Auto-pivot on failure (e.g. 503 Capacity Exhausted)
+        const providers = ['openai', 'gemini', 'elevenlabs', 'hume'];
+        const currentIndex = providers.indexOf(provider);
+        const nextProvider = providers[(currentIndex + 1) % providers.length];
+        
+        log(`Still Healing... Pivoting from ${provider} to ${nextProvider}`, 'warn');
+        config.provider = nextProvider;
+        updateBadge();
+        await startSession(); // Recurse to next provider
     }
 }
 
