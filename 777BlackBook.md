@@ -73,7 +73,10 @@ Inside `app.js`, look for `function startSession()`, and insert the logic to tri
 - Hover your mouse at the very bottom right corner of the page. You will see a slightly translucent dot.
 - Click it. It will ask for a password (`777`).
 
-### 2. The Voice Won't Connect / "API Key Missing"
+### 2. The Voice Won't Connect / "API Key Missing" / 503 Service Unavailable
+- **503 (Capacity Exhausted)**: If a model (like Gemini) returns a 503 error, the "Open Pipe" architecture allows for instant switching. 
+    - **Action**: Open Admin Panel -> Override Model (e.g., from `gemini-2.0-flash` to `gemini-1.5-flash`) -> Apply & Reboot.
+    - **Note**: The system is designed to "Eat the Tunnel," meaning it prioritizes your custom inputs over factory defaults.
 - Ensure your API Keys are placed either in `/js/config.js` or via the Admin Panel under "Custom Provider".
 - Check the on-screen UI Log (Click "System Logs" or check `console.log`).
 - **Gemini Restriction:** If Gemini is rejecting the connection due to limits or blocking, you can use the override script:

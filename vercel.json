@@ -2,7 +2,9 @@
   "name": "egypt-alarabclub777",
   "version": 2,
   "public": true,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/$1" }
+  "routes": [
+    { "src": "/api7/(.*)", "dest": "js/app.js" },
+    { "src": "/cp/(.*)", "dest": "index.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
