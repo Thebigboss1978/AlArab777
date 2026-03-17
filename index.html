@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlArab 777 — Voice (Modular)</title>
+    
+    <!-- 1. CSS Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Sovereign ID & Context -->
+    <div id="sovereign-id" data-identity="ID:ALR777|OWNER:SHARIF_ALSHAWISH_ABUELABD|MANAGER_WHATSAPP:+201288063037|LOC:GIZA_NZLT_SMN|HQ:SKY_PYR_HTL|BRAND:GIZA7_LOCAL_INSIDE|STATUS:FIXING_GRAVY_APP|EXECUTION:REAL_VIDEO_OVERLAY|ENV:PROD|TS:20260317T0405Z|TOPO:VOICE>STT>CHATWOOT>OLLAMA>FFMPEG_NFT|MODE:TURBO_1000X|SIGNAL:GIZA7_Sovereign" style="display: none;"></div>
+
+    <!-- Hidden Admin Dot -->
+    <div id="admin-dot" title="Hidden Admin"></div>
+    <div id="overlay"></div>
+
+    <!-- Admin Panel (Password Protected) -->
+    <div id="admin-panel">
+        <div id="admin-login">
+            <h2>ADMIN ACCESS</h2>
+            <input type="password" id="admin-pwd" placeholder="Enter Password">
+            <button id="admin-unlock">Unlock</button>
+            <div id="admin-error"></div>
+        </div>
+
+        <div id="admin-settings" style="display: none;">
+            <h2>SYSTEM CONFIGURATION</h2>
+
+            <div class="setting-group">
+                <label>Active Provider</label>
+                <select id="cfg-provider">
+                    <option value="openai">OpenAI Realtime (GPT-4o)</option>
+                    <option value="gemini">Google Gemini Live (2.0 Flash)</option>
+                    <option value="elevenlabs">ElevenLabs (Conversational AI)</option>
+                    <option value="hume">Hume EVI (Empathic Voice)</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>Intelligence Level / Model</label>
+                <select id="cfg-model">
+                    <option value="pro">Pro (Full context, High Reasoning)</option>
+                    <option value="flash">Flash (Low Latency, Speed)</option>
+                    <option value="creative">Creative (Narrative, Personality)</option>
+                </select>
+            </div>
+
+            <button id="save-settings">Apply & Reboot</button>
+        </div>
+    </div>
+
+    <!-- Main Voice Button -->
+    <div id="voice-btn">
+        <div class="ripple-ring"></div>
+        <div class="ripple-ring"></div>
+        <div class="ripple-ring"></div>
+        <span class="btn-icon">🎙</span>
+    </div>
+
+    <!-- Status -->
+    <div id="status-area">
+        <div id="status-state" class="state-idle">DOUBLE-CLICK TO START</div>
+        <div id="status-detail">Ready</div>
+    </div>
+
+    <!-- Provider Badge -->
+    <div id="provider-badge"></div>
+
+    <!-- Log Toggle -->
+    <div id="log-toggle">▲ LOG</div>
+    <div id="log-panel">
+        <div id="log-content"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MODULAR JAVASCRIPT ENGINE                 -->
+    <!-- ═══════════════════════════════════════════ -->
+    
+    <!-- 2. Configuration & Cognitive Brain -->
+    <script src="js/config.js"></script>
+    <script src="js/brain.js"></script>
+    
+    <!-- 3. Utilities & Audio Helpers -->
+    <script src="js/utils.js"></script>
+
+    <!-- 4. Main Application State & Orchestrator -->
+    <script src="js/app.js"></script>
+    
+    <!-- 5. Providers Logic -->
+    <script src="js/providers/openai.js"></script>
+    <script src="js/providers/gemini.js"></script>
+    <script src="js/providers/elevenlabs.js"></script>
+    <script src="js/providers/hume.js"></script>
+
+</body>
+</html>

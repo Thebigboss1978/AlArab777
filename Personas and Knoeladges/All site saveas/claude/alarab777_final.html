@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>AlArab 777 — Digital Empire</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#000;
+  --gold:#c9a84c;
+  --gold-bright:#ffd700;
+  --gold-dim:rgba(201,168,76,0.12);
+  --accent:#00e5cc;
+  --white:#f5f0e8;
+}
+html,body{
+  width:100%;min-height:100%;
+  background:var(--black);
+  color:var(--white);
+  font-family:'Tajawal',sans-serif;
+  overflow-x:hidden;
+}
+
+/* ── GRAIN ── */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  opacity:.5;
+}
+
+/* ── GOLD LINE ── */
+.g-line{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold) 40%,transparent);opacity:.3;position:relative;z-index:2;}
+
+/* ── HEADER ── */
+header{
+  position:relative;z-index:2;
+  padding:36px 56px 32px;
+  display:flex;justify-content:space-between;align-items:flex-end;
+  animation:fadeUp .7s ease both;
+}
+.logo-block .eyebrow{font-size:10px;letter-spacing:.5em;color:var(--gold);opacity:.5;text-transform:uppercase;margin-bottom:4px;}
+.logo-block .wordmark{font-size:48px;font-weight:900;letter-spacing:-.02em;color:var(--white);line-height:1;}
+.logo-block .wordmark span{color:var(--gold);}
+.logo-block .tagline{font-size:10px;letter-spacing:.4em;color:rgba(255,255,255,.18);text-transform:uppercase;margin-top:4px;}
+.header-meta{font-size:10px;letter-spacing:.25em;color:rgba(255,255,255,.15);text-align:left;line-height:2.2;}
+
+/* ── ORB STAGE ── */
+#orb-wrap{
+  position:relative;z-index:2;
+  height:340px;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+  animation:fadeIn 1.2s .2s ease both;
+}
+#orb-canvas{position:absolute;inset:0;width:100%;height:100%;}
+
+/* ── ORB CENTER TEXT ── */
+#orb-center{
+  position:relative;z-index:3;
+  text-align:center;pointer-events:none;
+}
+#orb-status{
+  font-size:11px;letter-spacing:.4em;text-transform:uppercase;
+  color:rgba(255,215,0,.4);min-height:16px;transition:color .3s;
+}
+#orb-status.speaking{color:var(--accent);}
+#orb-status.listening{color:var(--gold-bright);}
+#speak-btn{
+  margin-top:20px;
+  width:72px;height:72px;border-radius:50%;
+  background:radial-gradient(circle at 40% 38%,rgba(255,215,0,.12),rgba(0,0,0,.7));
+  border:1.5px solid rgba(201,168,76,.4);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .3s;pointer-events:auto;
+  position:relative;
+}
+#speak-btn::before{
+  content:'';position:absolute;inset:-8px;border-radius:50%;
+  border:1px solid rgba(201,168,76,.18);
+  animation:spin 9s linear infinite;
+}
+#speak-btn:hover{border-color:var(--gold);box-shadow:0 0 24px rgba(255,215,0,.3);}
+#speak-btn.active{
+  border-color:var(--gold-bright);
+  box-shadow:0 0 30px rgba(255,215,0,.5),0 0 60px rgba(255,215,0,.15);
+  animation:pulse 1.5s ease-in-out infinite;
+}
+#speak-btn svg{width:26px;height:26px;fill:var(--gold);opacity:.8;}
+
+/* ── TRANSCRIPT ── */
+#transcript{
+  position:relative;z-index:2;
+  min-height:52px;padding:0 60px;
+  text-align:center;
+  font-size:14px;font-weight:300;line-height:1.9;
+  color:rgba(255,215,0,.65);
+  animation:fadeIn .5s ease;
+}
+
+/* ── PORTALS ── */
+.portals{
+  position:relative;z-index:2;
+  padding:48px 56px 72px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px;
+  background:rgba(201,168,76,.07);
+  animation:fadeUp .8s .4s ease both;
+  opacity:0;animation-fill-mode:both;
+}
+.portal{
+  background:var(--black);
+  padding:40px 32px;
+  display:flex;flex-direction:column;gap:16px;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:background .25s;
+  text-decoration:none;color:inherit;
+}
+.portal::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--portal-color,var(--gold)),transparent);
+  opacity:0;transition:opacity .3s;transform:scaleX(.4);transition:opacity .3s,transform .3s;
+}
+.portal:hover{background:rgba(255,255,255,.02);}
+.portal:hover::after{opacity:.5;transform:scaleX(1);}
+
+.portal-num{font-size:9px;letter-spacing:.5em;color:var(--portal-color,var(--gold));opacity:.35;}
+.portal-icon{font-size:32px;line-height:1;transition:transform .3s;}
+.portal:hover .portal-icon{transform:scale(1.12) translateY(-2px);}
+.portal-name{font-size:20px;font-weight:700;letter-spacing:-.01em;color:var(--white);}
+.portal-sub{font-size:11px;font-weight:300;color:var(--portal-color,var(--gold));opacity:.6;letter-spacing:.1em;}
+.portal-desc{font-size:12px;font-weight:300;color:rgba(255,255,255,.3);line-height:1.85;flex:1;}
+.portal-cta{
+  font-size:9px;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--portal-color,var(--gold));opacity:.4;
+  transition:opacity .3s;display:flex;align-items:center;gap:6px;
+}
+.portal:hover .portal-cta{opacity:.9;}
+.portal-cta::before{content:'←';}
+
+.portal.judy  {--portal-color:#ffd700;}
+.portal.malika{--portal-color:#ff9900;}
+.portal.voice {--portal-color:#00e5cc;}
+.portal.saba  {--portal-color:#a78bfa;}
+
+/* ── FOOTER ── */
+footer{
+  position:relative;z-index:2;
+  padding:28px 56px;
+  display:flex;justify-content:space-between;align-items:center;
+  animation:fadeUp .7s .5s ease both;opacity:0;animation-fill-mode:both;
+}
+.footer-l{font-size:9px;letter-spacing:.3em;color:rgba(255,255,255,.12);}
+.footer-r{font-size:9px;letter-spacing:.2em;color:rgba(255,255,255,.08);}
+
+/* ── KEYFRAMES ── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.06)}
+}
+
+/* ── MOBILE ── */
+@media(max-width:900px){
+  header{padding:28px 24px;flex-direction:column;align-items:flex-start;gap:12px}
+  .logo-block .wordmark{font-size:36px}
+  #orb-wrap{height:260px}
+  #transcript{padding:0 24px}
+  .portals{grid-template-columns:1fr 1fr;padding:0 0 48px}
+  footer{padding:20px 24px;flex-direction:column;gap:6px}
+}
+@media(max-width:480px){
+  .portals{grid-template-columns:1fr}
+  .logo-block .wordmark{font-size:28px}
+}
+</style>
+</head>
+<body>
+
+<div class="g-line"></div>
+
+<header>
+  <div class="logo-block">
+    <div class="eyebrow">Al Arab — Digital Empire</div>
+    <div class="wordmark">777<span>.</span></div>
+    <div class="tagline">Sovereign AI Network</div>
+  </div>
+  <div class="header-meta">
+    alarabclub777.com<br>
+    Cairo · Amman · Global<br>
+    Est. 2025
+  </div>
+</header>
+
+<div class="g-line"></div>
+
+<!-- ── ORB ── -->
+<div id="orb-wrap">
+  <canvas id="orb-canvas"></canvas>
+  <div id="orb-center">
+    <div id="orb-status">اضغط للبدء</div>
+    <button id="speak-btn" onclick="toggleSpeak()">
+      <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zm-1 13.93A7 7 0 0 1 5 8H3a9 9 0 0 0 8 8.94V20H8v2h8v-2h-3v-3.07A9 9 0 0 0 21 8h-2a7 7 0 0 1-6 6.93z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div id="transcript"></div>
+
+<!-- ── PORTALS ── -->
+<div class="portals">
+
+  <a class="portal judy" href="https://judy.alarabclub777.com">
+    <div class="portal-num">01</div>
+    <div class="portal-icon">🎓</div>
+    <div class="portal-name">جودي</div>
+    <div class="portal-sub">Jordan · Education AI</div>
+    <div class="portal-desc">مستشارة أكاديمية أردنية. تعرف الجامعات من الداخل. صريحة وواقعية.</div>
+    <div class="portal-cta">تحدث مع جودي</div>
+  </a>
+
+  <a class="portal malika" href="https://malika.alarabclub777.com">
+    <div class="portal-num">02</div>
+    <div class="portal-icon">🏛️</div>
+    <div class="portal-name">مليكة</div>
+    <div class="portal-sub">Egypt · Tourism AI</div>
+    <div class="portal-desc">مرشدة من نازلة السمان. بنت الأهرامات. تعرف كل زاوية في الجيزة.</div>
+    <div class="portal-cta">تحدث مع مليكة</div>
+  </a>
+
+  <a class="portal voice" href="/voice">
+    <div class="portal-num">03</div>
+    <div class="portal-icon">🎙️</div>
+    <div class="portal-name">Voice OS</div>
+    <div class="portal-sub">777 · Live System</div>
+    <div class="portal-desc">النظام الصوتي الحي. الكرة الذهبية. تكلم واسمع في الوقت الفعلي.</div>
+    <div class="portal-cta">ادخل النظام</div>
+  </a>
+
+  <a class="portal saba" href="/saba">
+    <div class="portal-num">04</div>
+    <div class="portal-icon">⚡</div>
+    <div class="portal-name">سبع</div>
+    <div class="portal-sub">Seven · Command AI</div>
+    <div class="portal-desc">المحلل السيادي. مختصر وحاسم. قرارات وتحليلات فقط.</div>
+    <div class="portal-cta">تحدث مع سبع</div>
+  </a>
+
+</div>
+
+<div class="g-line"></div>
+
+<footer>
+  <div class="footer-l">© 2025 AlArab 777 — Sharif Al Shawish 𓁹</div>
+  <div class="footer-r">Cairo · Amman · Sovereign AI Network</div>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════
+// ORB ENGINE — lightweight canvas dots
+// No Three.js — works on weak devices
+// ══════════════════════════════════════════════
+const canvas = document.getElementById('orb-canvas');
+const ctx    = canvas.getContext('2d');
+let W, H, pts = [], mouse = {x:0,y:0};
+let audioForce = 0;
+
+function resize(){
+  W = canvas.width  = canvas.offsetWidth;
+  H = canvas.height = canvas.offsetHeight;
+  buildOrb();
+}
+
+function buildOrb(){
+  pts = [];
+  const R = Math.min(W,H) * 0.28;
+  const N = window.innerWidth < 600 ? 500 : 900; // light on mobile
+  const phi = Math.PI*(3-Math.sqrt(5));
+  for(let i=0;i<N;i++){
+    const y  = 1-(i/(N-1))*2;
+    const rr = Math.sqrt(1-y*y);
+    const th = phi*i;
+    pts.push({
+      bx: Math.cos(th)*rr*R,
+      by: y*R,
+      bz: Math.sin(th)*rr*R,
+      vx:0,vy:0,vz:0
+    });
+  }
+}
+
+let rotY=0,rotX=0,tRotY=0,tRotX=0;
+window.addEventListener('mousemove',e=>{
+  tRotY = ((e.clientX/window.innerWidth)*2-1)*0.5;
+  tRotX = -((e.clientY/window.innerHeight)*2-1)*0.4;
+});
+window.addEventListener('touchmove',e=>{
+  if(e.touches[0]){
+    tRotY=((e.touches[0].clientX/window.innerWidth)*2-1)*0.4;
+    tRotX=-((e.touches[0].clientY/window.innerHeight)*2-1)*0.3;
+  }
+},{passive:true});
+
+const DAMP=.96, RET=.055;
+function project(x,y,z){
+  const cosY=Math.cos(rotY),sinY=Math.sin(rotY);
+  const x1=x*cosY-z*sinY, z1=x*sinY+z*cosY;
+  const cosX=Math.cos(rotX),sinX=Math.sin(rotX);
+  const y2=y*cosX-z1*sinX, z2=y*sinX+z1*cosX;
+  const fov=420, scale=fov/(fov+z2);
+  return {sx:x1*scale+W/2, sy:y2*scale+H/2, scale};
+}
+
+function frame(){
+  requestAnimationFrame(frame);
+  ctx.clearRect(0,0,W,H);
+  rotY+=(tRotY-rotY)*.06;
+  rotX+=(tRotX-rotX)*.06;
+
+  const af = audioForce;
+  for(const p of pts){
+    const dx=p.bx-p.x||(p.x=p.bx,0);
+    const dy=p.by-p.y||(p.y=p.by,0);
+    const dz=p.bz-p.z||(p.z=p.bz,0);
+    p.vx=(p.vx+dx*RET)*DAMP;
+    p.vy=(p.vy+dy*RET)*DAMP;
+    p.vz=(p.vz+dz*RET)*DAMP;
+    if(af>0.25){
+      p.vx+=p.bx*af*0.08*(Math.random()*.8+.2);
+      p.vy+=p.by*af*0.08*(Math.random()*.8+.2);
+      p.vz+=p.bz*af*0.08*(Math.random()*.8+.2);
+    }
+    p.x+=p.vx*.018; p.y+=p.vy*.018; p.z+=p.vz*.018;
+    const {sx,sy,scale}=project(p.x,p.y,p.z);
+    if(sx<0||sx>W||sy<0||sy>H) continue;
+    const brightness = 0.35+scale*0.55+af*0.3;
+    ctx.beginPath();
+    ctx.arc(sx,sy,scale*2.2,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,215,0,${Math.min(1,brightness)})`;
+    ctx.fill();
+  }
+}
+
+window.addEventListener('resize',resize);
+resize(); frame();
+
+// ══════════════════════════════════════════════
+// AUTO-SPEAK on load — random greeting
+// ══════════════════════════════════════════════
+const GREETINGS = [
+  'أهلاً بك في AlArab 777 — الإمبراطورية الرقمية العربية.',
+  'مرحباً يا صديق. اخترْ من تريد التحدث معه.',
+  'أنت الآن داخل النظام السيادي. جودي ومليكة وسبع — كلهم جاهزون.',
+  'السلام عليكم. AlArab 777 في خدمتك.'
+];
+
+const statusEl   = document.getElementById('orb-status');
+const transcEl   = document.getElementById('transcript');
+const speakBtnEl = document.getElementById('speak-btn');
+let synth = window.speechSynthesis;
+let isActive=false, recognition=null;
+
+function setStatus(txt,cls=''){
+  statusEl.textContent=txt;
+  statusEl.className=cls;
+}
+
+function speak(text, onEnd){
+  synth.cancel();
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.lang='ar';utt.rate=0.9;utt.pitch=1;
+  speakBtnEl.classList.add('active');
+  setStatus('يتكلم…','speaking');
+  transcEl.textContent=text;
+  utt.onend=()=>{
+    speakBtnEl.classList.remove('active');
+    setStatus('جاهز','');
+    if(onEnd) onEnd();
+  };
+  synth.speak(utt);
+  // pulse orb
+  let pulses=0;
+  const pi=setInterval(()=>{
+    audioForce=0.4+Math.random()*0.4;
+    if(++pulses>120){clearInterval(pi);audioForce=0;}
+  },80);
+}
+
+// Auto greet after 1.5s
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    const g=GREETINGS[Math.floor(Math.random()*GREETINGS.length)];
+    speak(g);
+  },1500);
+});
+
+// ── VOICE ARM ──────────────────────────────────
+async function toggleSpeak(){
+  if(isActive) return stopVoice();
+  isActive=true;
+  speakBtnEl.classList.add('active');
+  setStatus('بتسمع…','listening');
+
+  // Mic analyser
+  try{
+    const ac=new(window.AudioContext||window.webkitAudioContext)();
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const src=ac.createMediaStreamSource(stream);
+    const an=ac.createAnalyser(); an.fftSize=64;
+    src.connect(an);
+    const fd=new Uint8Array(an.frequencyBinCount);
+    const tick=()=>{
+      if(!isActive)return;
+      an.getByteFrequencyData(fd);
+      audioForce=(fd.reduce((a,b)=>a+b,0)/fd.length)/128;
+      requestAnimationFrame(tick);
+    };
+    tick();
+  }catch(e){console.warn('mic',e);}
+
+  // STT
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){setStatus('Chrome فقط','');return;}
+  recognition=new SR();
+  recognition.lang='ar';recognition.continuous=false;recognition.interimResults=true;
+  recognition.onresult=async e=>{
+    const last=e.results[e.results.length-1];
+    transcEl.textContent=last[0].transcript;
+    if(last.isFinal) await handleSpeech(last[0].transcript);
+  };
+  recognition.onend=()=>{if(isActive)recognition.start();};
+  recognition.start();
+}
+
+function stopVoice(){
+  isActive=false;
+  if(recognition){recognition.onend=null;recognition.stop();}
+  synth.cancel();
+  audioForce=0;
+  speakBtnEl.classList.remove('active');
+  setStatus('اضغط للبدء','');
+  transcEl.textContent='';
+}
+
+// ── CALL /api/chat ─────────────────────────────
+const JUDY_PROMPT=`أنت جودي — مستشارة أكاديمية أردنية. عامية أردنية. مباشرة. واقعية. ردودك قصيرة في المحادثة الصوتية.`;
+
+async function handleSpeech(text){
+  setStatus('تفكر…','');
+  try{
+    const res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        persona:'judy',
+        messages:[
+          {role:'system',content:JUDY_PROMPT},
+          {role:'user',content:text}
+        ]
+      })
+    });
+    const data=await res.json();
+    speak(data.reply||'...');
+  }catch(e){
+    speak('في مشكلة بالاتصال، جرب مرة ثانية.');
+  }
+}
+
+// click orb = burst
+canvas.addEventListener('click',e=>{
+  const rect=canvas.getBoundingClientRect();
+  const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+  const cx=W/2, cy=H/2;
+  for(const p of pts){
+    const {sx,sy}=project(p.x,p.y,p.z);
+    const d=Math.hypot(sx-mx,sy-my);
+    if(d<120){
+      const mag=(1-d/120)*15;
+      p.vx+=p.bx*mag*0.1;
+      p.vy+=p.by*mag*0.1;
+      p.vz+=p.bz*mag*0.1;
+    }
+  }
+  audioForce=0.8;
+  setTimeout(()=>audioForce=0,600);
+});
+</script>
+</body>
+</html>

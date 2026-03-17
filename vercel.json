@@ -1,0 +1,8 @@
+{
+  "name": "egypt-alarabclub777",
+  "version": 2,
+  "public": true,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/$1" }
+  ]
+}

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlArab 777 | Imperial Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: #050505;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        .glow {
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+        }
+
+        .visualizer-bar {
+            transition: height 0.1s ease;
+        }
+
+        #judy-layer {
+            border-top: 2px solid #ff3b3b;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col items-center justify-center h-screen">
+
+    <div id="status-bar" class="absolute top-5 left-5 text-xs tracking-widest text-red-600 uppercase">
+        System: SABA-777-v1.0 | Status: <span class="animate-pulse">Active</span>
+    </div>
+
+    <div class="flex items-end justify-center space-x-1 h-32 mb-10" id="visualizer">
+    </div>
+
+    <div class="text-center z-10">
+        <h1 class="text-4xl font-black tracking-tighter mb-2 italic">AL-ARRAB <span
+                class="text-red-600 underline">777</span></h1>
+        <p id="system-msg" class="text-gray-500 text-sm mb-8">Waiting for Voice Print...</p>
+
+        <div class="flex space-x-4 space-x-reverse justify-center">
+            <button onclick="activate('judy')"
+                class="bg-white text-black px-8 py-3 font-bold hover:bg-red-600 hover:text-white transition-all glow">JUDY</button>
+            <button onclick="activate('malika')"
+                class="border border-white px-8 py-3 font-bold hover:border-red-600 hover:text-red-600 transition-all">MALIKA</button>
+        </div>
+    </div>
+
+    <audio id="engine-idle" loop src="assets/ferrari.mp3"></audio>
+
+    <script>
+        // بروتوكول التشغيل الفوري (Act)
+        function activate(mode) {
+            const idle = document.getElementById('engine-idle');
+            const msg = document.getElementById('system-msg');
+
+            // تشغيل صوت الفيراري فور التفاعل
+            idle.play().catch(e => console.log("Audio waiting for interaction"));
+
+            msg.innerText = `Connecting to ${mode.toUpperCase()} Engine...`;
+            msg.classList.add('text-red-500', 'animate-pulse');
+
+            // هنا يتم الربط بـ "الدماغ" المخفي (Layer Two)
+            setTimeout(() => {
+                console.log(`Automata: Redirecting to local logic for ${mode}`);
+            }, 1000);
+        }
+
+        // بناء الـ Visualizer
+        const viz = document.getElementById('visualizer');
+        for (let i = 0; i < 20; i++) {
+            let bar = document.createElement('div');
+            bar.className = 'visualizer-bar w-2 bg-red-600';
+            bar.style.height = Math.random() * 100 + '%';
+            viz.appendChild(bar);
+        }
+
+        setInterval(() => {
+            document.querySelectorAll('.visualizer-bar').forEach(b => {
+                b.style.height = Math.random() * 80 + 20 + '%';
+            });
+        }, 150);
+    </script>
+</body>
+
+</html>ssets that we are fear ferrari.mPB came inGroup Gemini Halal KalisiHow to

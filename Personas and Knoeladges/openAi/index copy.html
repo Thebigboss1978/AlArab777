@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlArab Club 777 | العرّاب</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;600;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        black: '#050505',
+                        gold: '#D4AF37',
+                        dark: '#1a1a1a',
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #050505; color: white; font-family: 'Cairo', sans-serif; }
+        .glow-text { text-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
+        
+        /* تصميم النقطة السوداء (إجبار) */
+        #vapi-support-btn {
+            background-color: #000000 !important;
+            border: 2px solid #D4AF37 !important;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5) !important;
+            width: 70px !important;
+            height: 70px !important;
+            bottom: 30px !important;
+            right: 30px !important;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen overflow-hidden">
+
+    <div class="fixed inset-0 pointer-events-none">
+        <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#000000_100%)]"></div>
+    </div>
+
+    <main class="relative z-10 flex flex-col items-center justify-center flex-grow text-center px-4">
+        
+        <h1 class="text-9xl font-black text-transparent bg-clip-text bg-gradient-to-b from-gold to-[#8B735B] glow-text mb-4">
+            777
+        </h1>
+
+        <h2 class="text-3xl text-gold font-bold mb-2">AlArab Club</h2>
+        <p class="text-xl text-gray-400 max-w-lg leading-relaxed">
+            "حيث يتحدث التاريخ.. <br> <span class="text-white">لغة الذكاء الاصطناعي</span>"
+        </p>
+
+        <div class="mt-12 w-px h-24 bg-gradient-to-b from-transparent via-gold to-transparent opacity-50"></div>
+        
+        <p class="mt-4 text-xs text-gold uppercase tracking-[0.2em] opacity-70">
+            اضغط على النقطة السوداء للتحدث
+        </p>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js"></script>
+    <script>
+        // ⚠️ ضع مفاتيحك هنا مباشرة (بما أن الملف عندك لوحدك)
+        const MY_PUBLIC_KEY = "هنا_تحط_المفتاح_من_Vapi"; 
+        const MY_ASSISTANT_ID = "هنا_تحط_الرقم_بتاع_مليكة";
+
+        var vapiInstance = window.vapiSDK.run({
+            apiKey: MY_PUBLIC_KEY,
+            assistant: MY_ASSISTANT_ID,
+            config: {
+                position: "bottom-right",
+                theme: {
+                    primary: "#000000",   // أسود
+                    secondary: "#D4AF37", // ذهبي
+                    background: "#111111"
+                }
+            }
+        });
+    </script>
+</body>
+</html>

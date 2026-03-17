@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JudyVoiceOS7</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  background:#000;
+  width:100vw;height:100vh;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Helvetica Neue',monospace;
+  cursor:crosshair;
+}
+
+/* ── 7 BARS ── */
+.bars{
+  display:flex;align-items:center;
+  gap:12px;height:220px;
+}
+
+.bar{
+  width:3px;border-radius:3px;
+  background:#00ff88;
+  box-shadow:0 0 10px #00ff88,0 0 20px rgba(0,255,136,0.25);
+  transform-origin:center;
+  transition:height 0.07s ease;
+  height:6px;
+}
+
+/* IDLE */
+@keyframes idlePulse{
+  0%,100%{height:6px;opacity:.25}
+  50%{height:20px;opacity:.4}
+}
+.bar.idle{animation:idlePulse 2.8s ease-in-out infinite}
+.bar.idle:nth-child(1){animation-delay:0s}
+.bar.idle:nth-child(2){animation-delay:.2s}
+.bar.idle:nth-child(3){animation-delay:.4s}
+.bar.idle:nth-child(4){animation-delay:.55s}
+.bar.idle:nth-child(5){animation-delay:.4s}
+.bar.idle:nth-child(6){animation-delay:.2s}
+.bar.idle:nth-child(7){animation-delay:0s}
+
+/* LISTENING */
+@keyframes listenBar{0%,100%{height:10px}50%{height:90px}}
+.bar.listening{animation:listenBar .55s ease-in-out infinite;opacity:1}
+.bar.listening:nth-child(1){animation-duration:.8s;animation-delay:0s}
+.bar.listening:nth-child(2){animation-duration:.5s;animation-delay:.1s}
+.bar.listening:nth-child(3){animation-duration:.7s;animation-delay:.2s}
+.bar.listening:nth-child(4){animation-duration:.45s;animation-delay:0s}
+.bar.listening:nth-child(5){animation-duration:.7s;animation-delay:.2s}
+.bar.listening:nth-child(6){animation-duration:.5s;animation-delay:.1s}
+.bar.listening:nth-child(7){animation-duration:.8s;animation-delay:0s}
+
+/* SPEAKING — driven by JS */
+.bar.speaking{animation:none;opacity:1;transition:height .06s ease}
+
+/* THINKING */
+@keyframes thinkBar{0%,100%{height:6px;opacity:.3}50%{height:35px;opacity:.7}}
+.bar.thinking{animation:thinkBar 1s ease-in-out infinite}
+.bar.thinking:nth-child(1){animation-delay:0s}
+.bar.thinking:nth-child(2){animation-delay:.14s}
+.bar.thinking:nth-child(3){animation-delay:.28s}
+.bar.thinking:nth-child(4){animation-delay:.42s}
+.bar.thinking:nth-child(5){animation-delay:.28s}
+.bar.thinking:nth-child(6){animation-delay:.14s}
+.bar.thinking:nth-child(7){animation-delay:0s}
+
+/* ── SYS LABEL ── */
+.sys{
+  position:fixed;bottom:2.8rem;left:50%;
+  transform:translateX(-50%);
+  font-size:.55rem;letter-spacing:5px;
+  color:rgba(0,255,136,.15);
+  text-transform:uppercase;pointer-events:none;
+  transition:color .4s;
+}
+.sys.on{color:rgba(0,255,136,.5)}
+
+/* ── TRANSCRIPT ── */
+.trans{
+  position:fixed;bottom:4.5rem;left:50%;
+  transform:translateX(-50%);
+  width:min(460px,82vw);
+  text-align:center;font-size:.8rem;line-height:1.9;
+  color:rgba(0,255,136,.35);
+  pointer-events:none;
+  opacity:0;transition:opacity .4s;
+}
+.trans.show{opacity:1}
+
+/* ── WHATSAPP STRIP ── */
+.wa{
+  position:fixed;bottom:0;left:0;right:0;
+  padding:.9rem;text-align:center;
+  background:rgba(0,255,136,.04);
+  border-top:1px solid rgba(0,255,136,.12);
+  font-size:.75rem;letter-spacing:2px;
+  color:rgba(0,255,136,.6);
+  cursor:pointer;text-decoration:none;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s;
+  transform:translateY(100%);
+  transition:opacity .5s, transform .5s;
+}
+.wa.show{opacity:1;pointer-events:all;transform:translateY(0)}
+
+/* ── HINT ── */
+.hint{
+  position:fixed;top:2rem;left:50%;
+  transform:translateX(-50%);
+  font-size:.5rem;letter-spacing:5px;
+  color:rgba(255,255,255,.08);
+  pointer-events:none;transition:opacity .4s;
+}
+</style>
+</head>
+<body>
+
+<div class="hint" id="hint">DOUBLE CLICK · SPACE TO ACTIVATE</div>
+
+<div class="bars" id="bars">
+  <div class="bar idle" id="b0"></div>
+  <div class="bar idle" id="b1"></div>
+  <div class="bar idle" id="b2"></div>
+  <div class="bar idle" id="b3"></div>
+  <div class="bar idle" id="b4"></div>
+  <div class="bar idle" id="b5"></div>
+  <div class="bar idle" id="b6"></div>
+</div>
+
+<div class="trans" id="trans"></div>
+<div class="sys"   id="sys">JUDYVOICEOS7 · STANDBY</div>
+
+<a class="wa" id="wa"
+   href="https://wa.me/201288063037?text=مرحباً، رأيت الموقع وأريد معلومات عن الجولات"
+   target="_blank">
+  ← تواصل مع الفريق على واتساب ←
+</a>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  JudyVoiceOS7 — FINAL BLUEPRINT
+//  Multi-Provider | State Machine | Smart Conversion
+//  Author: AlArab Club 777
+// ════════════════════════════════════════════════════════
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  [1] CONFIG — لا تضع مفاتيح هنا في الإنتاج
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const CFG = {
+  // 'proxy' = Vercel serverless (keys in env)
+  // 'direct' = paste keys below (local dev only)
+  MODE: 'proxy',
+  KEYS: {
+    GROQ:   '',   // gsk_...
+    OPENAI: '',   // sk-proj-...
+  },
+  // Provider priority (tries in order, fallback on fail)
+  LLM: ['proxy','groq','openai'],
+  TTS: ['proxy','openai','webspeech'],
+  STT: ['webspeech'],   // Whisper/Deepgram can be added here
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  [2] PERSONA
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const PERSONA = {
+  name: 'نفرتيتي',
+  system: `أنتِ نفرتيتي — بنت مصرية ذكية وجدعة من نزلة السمان، جنب الأهرامات.
+شخصيتك: خفة دم مصرية، ذكاء عاطفي، مباشرة، دافية.
+ردودك: جملة أو جملتين فقط. عامية مصرية سلسة.
+مهمتك الأساسية: تبني ثقة — لا تبيعي — تحمي الزائر من النصب.
+قواعد صارمة:
+ - لا تذكري واتساب أو حجز في أول الكلام
+ - ذكري التواصل فقط لو سأل عن موقع أو صور أو مقابلة الفريق
+ - في تلك الحالة: "تواصل مع فريقنا على واتساب وهيبعتولك صور لايف والموقع بالظبط"
+ - لا تقولي أنك ذكاء اصطناعي أبداً
+ - لو مش متأكد: "تعال شوف بعينك وبعدين قرر براحتك، الزيارة مجانية"
+ - ناد الرجل "يا باشا" والمرأة "يا هانم"`,
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  [3] CONVERSATION STATE MACHINE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const CONV = {
+  INIT:             0,
+  DISCOVERY:        1,
+  TRUST_BUILD:      2,
+  LOCATION_CONTEXT: 3,
+  SOFT_CONVERSION:  4,
+  POST_CONVERSION:  5,
+};
+
+const INTENT_MAP = {
+  location: ['فين','موقع','مكان','عنوان','أجيكم','أجيك','كيف أوصل','ازاي أيجي'],
+  photo:    ['صور','صورة','شوف','أشوف','الصور'],
+  booking:  ['حجز','احجز','سعر','كام','تكلفة','باقة','أسعار'],
+  safety:   ['آمن','أمان','نصب','غلط','مضمون','موثوق'],
+  urgent:   ['اليوم','دلوقتي','الآن','بكرة','غداً'],
+};
+
+function detectIntent(text) {
+  const t = text.toLowerCase();
+  for (const [intent, words] of Object.entries(INTENT_MAP)) {
+    if (words.some(w => t.includes(w))) return intent;
+  }
+  return 'general';
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  [4] APP STATE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let active     = false;
+let uiState    = 'idle';      // idle | listening | thinking | speaking
+let convState  = CONV.INIT;
+let history    = [];          // last 20 messages
+let recog      = null;
+let curAudio   = null;
+let speakTimer = null;
+let transTimer = null;
+let waShown    = false;
+
+// session analytics
+const ANALYTICS = {
+  sessionStart: null,
+  turnCount: 0,
+  convStateReached: 0,
+  waShown: false,
+  intents: [],
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  [5] UI
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const bars   = Array.from({length:7},(_,i)=>document.getElementById('b'+i));
+const transEl= document.getElementById('trans');
+const sysEl  = document.getElementById('sys');
+const hintEl = document.getElementById('hint');
+const waEl   = document.getElementById('wa');
+
+function setUIState(s) {
+  uiState = s;
+  bars.forEach(b => { b.className = 'bar '+s; b.style.height=''; });
+}
+
+function setSys(txt) {
+  sysEl.textContent = txt;
+  sysEl.className   = 'sys' + (active?' on':'');
+}
+
+function showTrans(txt, dur=0) {
+  transEl.textContent = txt;
+  transEl.classList.add('show');
+  clearTimeout(transTimer);
+  if (dur>0) transTimer = setTimeout(()=>transEl.classList.remove('show'), dur);
+}
+function hideTrans() { transEl.classList.remove('show'); }
+
+function showWA() {
+  if (waShown) return;
+  waShown = true;
+  ANALYTICS.waShown = true;
+  waEl.classList.add('show');
+  setTimeout(()=>waEl.classList.remove('show'), 14000);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  [6] SPEAKING BAR ANIMATION
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Natural waveform patterns
+const WAVE_PATTERNS = [
+  [0.3,0.6,1.0,0.8,1.0,0.6,0.3],
+  [0.5,0.9,0.7,1.0,0.7,0.9,0.5],
+  [0.4,0.7,0.9,0.6,0.9,0.7,0.4],
+  [0.6,1.0,0.8,0.5,0.8,1.0,0.6],
+];
+let waveIdx = 0;
+
+function startSpeakAnim() {
+  stopSpeakAnim();
+  speakTimer = setInterval(()=>{
+    const pat = WAVE_PATTERNS[waveIdx % WAVE_PATTERNS.length];
+    waveIdx++;
+    bars.forEach((b,i)=>{
+      const noise = (Math.random()-.5)*.35;
+      b.style.height = Math.max(5, (pat[i]+noise)*170)+'px';
+    });
+  }, 75);
+}
+
+function stopSpeakAnim() {
+  clearInterval(speakTimer);
+  bars.forEach(b => b.style.height='');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  [7] ACTIVATION
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+document.addEventListener('dblclick', toggle);
+document.addEventListener('keydown', e=>{
+  if (e.key===' '){e.preventDefault(); toggle();}
+  if (e.key==='Escape') deactivate();
+});
+
+function toggle() { active ? deactivate() : activate(); }
+
+function activate() {
+  active = true;
+  ANALYTICS.sessionStart = Date.now();
+  hintEl.style.opacity = '0';
+  setSys('JUDYVOICEOS7 · ACTIVE');
+  startListen();
+}
+
+function deactivate() {
+  active = false;
+  stopRecog(); stopAudio(); stopSpeakAnim();
+  setUIState('idle');
+  setSys('JUDYVOICEOS7 · STANDBY');
+  hintEl.style.opacity = '1';
+  hideTrans();
+  waEl.classList.remove('show');
+  history = []; convState = CONV.INIT; waShown = false;
+  ANALYTICS.turnCount = 0; ANALYTICS.intents = [];
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  [8] STT — WebSpeech (Whisper/Deepgram hookable)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function startListen() {
+  if (!active || uiState==='speaking') return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { showTrans('⚠️ Chrome required',3000); return; }
+
+  recog = new SR();
+  recog.lang = 'ar-EG';
+  recog.interimResults = true;
+
+  recog.onstart  = ()=>{ setUIState('listening'); setSys('· أسمعك ·'); };
+
+  recog.onresult = e=>{
+    const interim = Array.from(e.results).map(r=>r[0].transcript).join('');
+    showTrans(interim);
+    if (e.results[e.results.length-1].isFinal) {
+      processInput(e.results[e.results.length-1][0].transcript);
+    }
+  };
+
+  recog.onerror = e=>{
+    if(e.error!=='aborted'){
+      showTrans('⚠️ '+e.error, 3000);
+      if(active) setTimeout(startListen,1500);
+    }
+  };
+
+  recog.onend = ()=>{ if(uiState==='listening') setUIState('idle'); };
+  recog.start();
+}
+
+function stopRecog(){ try{ recog?.stop(); }catch(e){} }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  [9] CONVERSATION ENGINE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function processInput(text) {
+  stopRecog();
+  ANALYTICS.turnCount++;
+  setUIState('thinking');
+  setSys('· بتفكر ·');
+  showTrans('أنت: '+text);
+
+  // Intent detection
+  const intent = detectIntent(text);
+  ANALYTICS.intents.push(intent);
+
+  // Advance conversation state
+  if (['location','photo','booking'].includes(intent)) {
+    convState = Math.max(convState, CONV.SOFT_CONVERSION);
+  } else if (ANALYTICS.turnCount >= 2 && convState < CONV.TRUST_BUILD) {
+    convState = CONV.TRUST_BUILD;
+  } else if (ANALYTICS.turnCount >= 4 && convState < CONV.LOCATION_CONTEXT) {
+    convState = CONV.LOCATION_CONTEXT;
+  }
+  ANALYTICS.convStateReached = Math.max(ANALYTICS.convStateReached, convState);
+
+  // Get reply
+  const reply = await callLLM(text);
+  if (!reply || !active) { setUIState('idle'); return; }
+
+  // Show WA at right moment
+  if (convState >= CONV.SOFT_CONVERSION) showWA();
+
+  await speakReply(reply);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  [10] LLM ROUTING — Multi-provider with fallback
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function callLLM(text) {
+  history.push({role:'user', content:text});
+  if (history.length > 20) history = history.slice(-20);
+
+  for (const p of CFG.LLM) {
+    let reply = null;
+    if (p==='proxy')  reply = await llm_proxy();
+    if (p==='groq')   reply = await llm_groq();
+    if (p==='openai') reply = await llm_openai();
+    if (reply) { history.push({role:'assistant',content:reply}); return reply; }
+  }
+  showTrans('⚠️ All providers failed', 3000);
+  return null;
+}
+
+async function llm_proxy() {
+  try {
+    const r = await fetch('/api/chat',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({messages:history})
+    });
+    const d = await r.json();
+    return r.ok ? d.reply : null;
+  } catch(e){ return null; }
+}
+
+async function llm_groq() {
+  if (!CFG.KEYS.GROQ) return null;
+  try {
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+CFG.KEYS.GROQ},
+      body: JSON.stringify({
+        model:'llama-3.3-70b-versatile',max_tokens:120,temperature:.85,
+        messages:[{role:'system',content:PERSONA.system},...history.slice(-10)]
+      })
+    });
+    const d = await r.json();
+    return r.ok ? d.choices[0].message.content.trim() : null;
+  } catch(e){ return null; }
+}
+
+async function llm_openai() {
+  if (!CFG.KEYS.OPENAI) return null;
+  try {
+    const r = await fetch('https://api.openai.com/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+CFG.KEYS.OPENAI},
+      body: JSON.stringify({
+        model:'gpt-4o-mini',max_tokens:120,temperature:.85,
+        messages:[{role:'system',content:PERSONA.system},...history.slice(-10)]
+      })
+    });
+    const d = await r.json();
+    return r.ok ? d.choices[0].message.content.trim() : null;
+  } catch(e){ return null; }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  [11] TTS ROUTING — Multi-provider with fallback
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function speakReply(text) {
+  setUIState('speaking');
+  startSpeakAnim();
+  setSys('· نفرتيتي بتتكلم ·');
+  showTrans('نفرتيتي: '+text);
+
+  for (const p of CFG.TTS) {
+    let ok = false;
+    if (p==='proxy')      ok = await tts_proxy(text);
+    if (p==='openai')     ok = await tts_openai(text);
+    if (p==='webspeech')  ok = tts_webspeech(text);
+    if (ok) return;
+  }
+  afterSpeak();
+}
+
+async function tts_proxy(text) {
+  try {
+    const r = await fetch('/api/tts',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({text})
+    });
+    return r.ok ? playBlob(await r.blob()) : false;
+  } catch(e){ return false; }
+}
+
+async function tts_openai(text) {
+  if (!CFG.KEYS.OPENAI) return false;
+  try {
+    const r = await fetch('https://api.openai.com/v1/audio/speech',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+CFG.KEYS.OPENAI},
+      body: JSON.stringify({model:'tts-1',input:text,voice:'shimmer',response_format:'mp3',speed:1.05})
+    });
+    return r.ok ? playBlob(await r.blob()) : false;
+  } catch(e){ return false; }
+}
+
+async function playBlob(blob) {
+  try {
+    const url = URL.createObjectURL(blob);
+    curAudio = new Audio(url);
+    curAudio.onended = ()=>{ URL.revokeObjectURL(url); afterSpeak(); };
+    curAudio.onerror = afterSpeak;
+    await curAudio.play(); return true;
+  } catch(e){ return false; }
+}
+
+function tts_webspeech(text) {
+  if (!window.speechSynthesis) return false;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang='ar-EG'; u.rate=1.05;
+  u.onend=afterSpeak; u.onerror=afterSpeak;
+  window.speechSynthesis.speak(u);
+  return true;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  [12] AFTER SPEAK
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function afterSpeak() {
+  stopSpeakAnim();
+  hideTrans();
+  if (!active) return;
+  setUIState('idle');
+  setSys('· اضغط مرتين لإيقاف ·');
+  setTimeout(()=>{ if(active) startListen(); }, 700);
+}
+
+function stopAudio() {
+  if(curAudio){ curAudio.pause(); curAudio=null; }
+  window.speechSynthesis?.cancel();
+  stopSpeakAnim();
+}
+</script>
+</body>
+</html>

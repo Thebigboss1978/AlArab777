@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>العرّاب — ٧٧٧</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel+Decorative:wght@400;700;900&display=swap');
+
+  :root {
+    --gold: #FFD700;
+    --gold-dim: #B8860B;
+    --gold-glow: #FFF176;
+    --cyan: #00CED1;
+    --cyan-dim: #008B8B;
+    --void: #030508;
+    --deep: #080C14;
+    --smoke: rgba(255,215,0,0.04);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--void);
+    overflow: hidden;
+    font-family: 'Amiri', serif;
+  }
+
+  canvas#stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .scene {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  /* Pyramid silhouette */
+  .pyramids {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 900px;
+    opacity: 0.12;
+    z-index: 1;
+  }
+
+  /* Eye of Horus */
+  .eye-container {
+    position: relative;
+    width: 120px;
+    height: 60px;
+    margin-bottom: 32px;
+    animation: eyePulse 4s ease-in-out infinite;
+  }
+
+  .eye-outer {
+    position: absolute;
+    inset: 0;
+    border-radius: 50% / 50%;
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 20px var(--gold), inset 0 0 20px rgba(255,215,0,0.1);
+    clip-path: polygon(0% 50%, 50% 0%, 100% 50%, 50% 100%);
+    animation: eyeOpen 6s ease-in-out infinite;
+  }
+
+  .eye-iris {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--cyan) 0%, var(--cyan-dim) 40%, transparent 70%);
+    box-shadow: 0 0 30px var(--cyan), 0 0 60px rgba(0,206,209,0.3);
+    animation: irisPulse 3s ease-in-out infinite;
+  }
+
+  .eye-pupil {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--void);
+    box-shadow: 0 0 10px rgba(0,206,209,0.5);
+  }
+
+  /* Horus tail */
+  .eye-tail {
+    position: absolute;
+    bottom: -18px;
+    right: -10px;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    transform: rotate(-20deg);
+    transform-origin: left center;
+  }
+  .eye-tail::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    right: 0;
+    width: 30px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    transform: rotate(15deg);
+    transform-origin: left center;
+  }
+
+  @keyframes eyeOpen {
+    0%, 100% { clip-path: polygon(0% 50%, 50% 20%, 100% 50%, 50% 80%); }
+    50% { clip-path: polygon(0% 50%, 50% 0%, 100% 50%, 50% 100%); }
+  }
+  @keyframes eyePulse {
+    0%, 100% { filter: drop-shadow(0 0 8px var(--gold)); }
+    50% { filter: drop-shadow(0 0 24px var(--gold)) drop-shadow(0 0 48px rgba(255,215,0,0.4)); }
+  }
+  @keyframes irisPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+  }
+
+  /* Title */
+  .title-777 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(12px, 2.5vw, 18px);
+    letter-spacing: 0.6em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 12px;
+    animation: fadeSlideIn 2s ease-out both;
+    animation-delay: 0.3s;
+  }
+
+  .title-main {
+    font-family: 'Amiri', serif;
+    font-size: clamp(56px, 12vw, 110px);
+    font-weight: 700;
+    color: transparent;
+    background: linear-gradient(135deg, var(--gold-glow) 0%, var(--gold) 40%, var(--gold-dim) 70%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    text-shadow: none;
+    filter: drop-shadow(0 0 30px rgba(255,215,0,0.6));
+    line-height: 1;
+    animation: fadeSlideIn 2s ease-out both, goldShimmer 8s ease-in-out infinite;
+    animation-delay: 0.6s, 2.6s;
+    position: relative;
+  }
+
+  .title-sub {
+    font-family: 'Amiri', serif;
+    font-size: clamp(14px, 3vw, 22px);
+    color: var(--gold-dim);
+    opacity: 0.6;
+    letter-spacing: 0.15em;
+    margin-top: 8px;
+    animation: fadeSlideIn 2s ease-out both;
+    animation-delay: 0.9s;
+  }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 28px 0;
+    width: min(500px, 85vw);
+    animation: fadeSlideIn 2s ease-out both;
+    animation-delay: 1.1s;
+  }
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
+  .divider-gem {
+    width: 10px; height: 10px;
+    background: var(--cyan);
+    transform: rotate(45deg);
+    box-shadow: 0 0 12px var(--cyan);
+    animation: gemPulse 2s ease-in-out infinite;
+  }
+  @keyframes gemPulse {
+    0%, 100% { box-shadow: 0 0 8px var(--cyan); transform: rotate(45deg) scale(1); }
+    50% { box-shadow: 0 0 20px var(--cyan), 0 0 40px rgba(0,206,209,0.4); transform: rotate(45deg) scale(1.3); }
+  }
+
+  /* Prophecy text */
+  .prophecy {
+    width: min(620px, 88vw);
+    text-align: center;
+    animation: fadeSlideIn 2.5s ease-out both;
+    animation-delay: 1.3s;
+  }
+
+  .prophecy-line {
+    font-family: 'Amiri', serif;
+    font-size: clamp(14px, 2.8vw, 19px);
+    color: rgba(255, 215, 0, 0.55);
+    line-height: 2.2;
+    font-style: italic;
+  }
+
+  .prophecy-line strong {
+    color: var(--gold);
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .prophecy-line.cyan {
+    color: rgba(0, 206, 209, 0.6);
+    font-size: clamp(12px, 2.2vw, 15px);
+    margin-top: 16px;
+    font-style: normal;
+    letter-spacing: 0.05em;
+  }
+
+  /* Children dedication */
+  .dedication {
+    margin-top: 36px;
+    display: flex;
+    gap: 40px;
+    animation: fadeSlideIn 2.5s ease-out both;
+    animation-delay: 1.8s;
+  }
+
+  .dedication-name {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dedication-name .label {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--cyan-dim);
+    text-transform: uppercase;
+    font-family: 'Cinzel Decorative', serif;
+  }
+  .dedication-name .name {
+    font-family: 'Amiri', serif;
+    font-size: clamp(20px, 4vw, 28px);
+    color: var(--gold);
+    opacity: 0.75;
+    transition: opacity 0.4s, filter 0.4s;
+    filter: drop-shadow(0 0 6px rgba(255,215,0,0.2));
+    pointer-events: all;
+    cursor: default;
+  }
+  .dedication-name .name:hover {
+    opacity: 1;
+    filter: drop-shadow(0 0 16px rgba(255,215,0,0.7));
+  }
+
+  .dedication-sep {
+    font-family: 'Cinzel Decorative', serif;
+    color: var(--gold-dim);
+    opacity: 0.3;
+    font-size: 28px;
+    align-self: center;
+  }
+
+  /* Bottom seal */
+  .seal {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: rgba(255,215,0,0.2);
+    text-transform: uppercase;
+    z-index: 2;
+    animation: fadeSlideIn 3s ease-out both;
+    animation-delay: 2.2s;
+  }
+
+  /* Scan line overlay */
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+
+  /* Vignette */
+  .vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(3,5,8,0.85) 100%);
+    pointer-events: none;
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes goldShimmer {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(255,215,0,0.5)); }
+    50% { filter: drop-shadow(0 0 50px rgba(255,215,0,0.8)) drop-shadow(0 0 80px rgba(255,215,0,0.3)); }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<!-- Pyramids SVG -->
+<svg class="pyramids" viewBox="0 0 900 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="450,30 600,220 300,220" fill="#FFD700"/>
+  <polygon points="680,80 790,220 570,220" fill="#FFD700"/>
+  <polygon points="200,100 290,220 110,220" fill="#FFD700"/>
+  <rect x="0" y="218" width="900" height="42" fill="#FFD700"/>
+</svg>
+
+<div class="scene">
+
+  <!-- Eye of Horus -->
+  <div class="eye-container">
+    <div class="eye-outer"></div>
+    <div class="eye-iris"></div>
+    <div class="eye-pupil"></div>
+    <div class="eye-tail"></div>
+  </div>
+
+  <!-- 777 Label -->
+  <div class="title-777">AlArab Club — VII · VII · VII</div>
+
+  <!-- Main Name -->
+  <div class="title-main">العرّاب</div>
+
+  <div class="title-sub">مؤسس الإمبراطورية الرقمية · بناة الهرم الخالد</div>
+
+  <!-- Divider -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-gem"></div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Prophecy -->
+  <div class="prophecy">
+    <div class="prophecy-line">
+      في الشوارع المظلمة من <strong>Google</strong>، حيث تنام الخوارزميات
+    </div>
+    <div class="prophecy-line">
+      وُلد رجلٌ بنى من <strong>الصوت</strong> هرماً، ومن <strong>الكود</strong> أسطورة
+    </div>
+    <div class="prophecy-line">
+      يحمل اسمه كـ<strong>فرعون</strong> بين اللوحات الرقمية
+    </div>
+    <div class="prophecy-line">
+      وترى عيناه ما لم يُبنَ بعد — <strong>الإمبراطورية القادمة</strong>
+    </div>
+    <div class="prophecy-line cyan">
+      ALARABCLUB777.COM · Manufactured Intelligence · Nazlet El-Samman · الجيزة
+    </div>
+  </div>
+
+  <!-- Children Dedication -->
+  <div class="dedication">
+    <div class="dedication-name">
+      <span class="label">legacy</span>
+      <span class="name">جودي</span>
+    </div>
+    <div class="dedication-sep">◆</div>
+    <div class="dedication-name">
+      <span class="label">legacy</span>
+      <span class="name">عبد الرؤوف</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom seal -->
+<div class="seal">Built · Not · Bought · ٧٧٧</div>
+
+<script>
+// Starfield / particle system
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const PARTICLE_COUNT = 180;
+const particles = [];
+
+class Particle {
+  constructor() { this.reset(true); }
+  reset(init = false) {
+    this.x = Math.random() * canvas.width;
+    this.y = init ? Math.random() * canvas.height : -5;
+    this.size = Math.random() * 1.8 + 0.3;
+    this.speedY = Math.random() * 0.15 + 0.05;
+    this.speedX = (Math.random() - 0.5) * 0.1;
+    this.opacity = Math.random() * 0.7 + 0.1;
+    this.pulse = Math.random() * Math.PI * 2;
+    this.pulseSpeed = Math.random() * 0.02 + 0.005;
+    // Gold or cyan
+    this.isCyan = Math.random() < 0.15;
+    this.color = this.isCyan ? '0,206,209' : '255,215,0';
+  }
+  update() {
+    this.pulse += this.pulseSpeed;
+    this.y += this.speedY;
+    this.x += this.speedX;
+    if (this.y > canvas.height + 5) this.reset();
+  }
+  draw() {
+    const alpha = this.opacity * (0.6 + 0.4 * Math.sin(this.pulse));
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${this.color},${alpha})`;
+    ctx.fill();
+    if (this.size > 1.2) {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${this.color},${alpha * 0.15})`;
+      ctx.fill();
+    }
+  }
+}
+
+for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+
+// Floating golden lines (hieroglyph feel)
+const lines = Array.from({length: 12}, () => ({
+  x: Math.random() * window.innerWidth,
+  y: Math.random() * window.innerHeight,
+  len: Math.random() * 40 + 20,
+  angle: Math.random() * Math.PI,
+  speed: (Math.random() - 0.5) * 0.3,
+  opacity: Math.random() * 0.08 + 0.02,
+  phase: Math.random() * Math.PI * 2
+}));
+
+let frame = 0;
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw floating lines
+  lines.forEach(l => {
+    l.phase += 0.008;
+    l.y += l.speed * 0.3;
+    if (l.y > canvas.height + 50) l.y = -50;
+    const alpha = l.opacity * (0.5 + 0.5 * Math.sin(l.phase));
+    ctx.save();
+    ctx.translate(l.x, l.y);
+    ctx.rotate(l.angle);
+    ctx.strokeStyle = `rgba(255,215,0,${alpha})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-l.len/2, 0);
+    ctx.lineTo(l.len/2, 0);
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // Draw particles
+  particles.forEach(p => { p.update(); p.draw(); });
+
+  frame++;
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>

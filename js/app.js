@@ -1,0 +1,251 @@
+// ═══════════════════════════════════════════════════════════
+// AlArab 777 Voice Interface — Main Application Orchestrator
+// ═══════════════════════════════════════════════════════════
+
+const STATE = {
+    IDLE: 'IDLE',
+    CONNECTING: 'CONNECTING',
+    LISTENING: 'LISTENING',
+    THINKING: 'THINKING',
+    SPEAKING: 'SPEAKING',
+    ERROR: 'ERROR'
+};
+
+let currentState = STATE.IDLE;
+let isSessionActive = false;
+let peerConnection = null;
+let audioElement = null;
+let dataChannel = null;
+let mediaStream = null;
+let geminiWs = null;
+let audioContext = null;
+let audioWorklet = null;
+let elevenLabsWs = null;
+let humeWs = null;
+
+// ─── DOM ───
+const btnEl = document.getElementById('voice-btn');
+const stateEl = document.getElementById('status-state');
+const detailEl = document.getElementById('status-detail');
+const badgeEl = document.getElementById('provider-badge');
+const logEl = document.getElementById('log-content');
+
+// ═══════════════════════════════════════════
+// Config Load / Save & UI
+// ═══════════════════════════════════════════
+function loadConfig() {
+    let cfg = { ...DEFAULT_CONFIG };
+    try {
+        const p = localStorage.getItem('alarab777_voice_provider');
+        const l = localStorage.getItem('alarab777_intelligence_level');
+        
+        if (p) cfg.provider = p;
+        if (l) cfg.level = l;
+
+        // Resolve Model based on Provider + Level from config.js
+        if (MODELS[cfg.provider] && MODELS[cfg.provider][cfg.level]) {
+            cfg.model = MODELS[cfg.provider][cfg.level];
+        }
+
+        // Fetch API Key from environment based on selected provider
+        const envKeyName = `${cfg.provider.toUpperCase()}_API_KEY`;
+        cfg.apiKey = window[envKeyName] || window[`VITE_${envKeyName}`] || localStorage.getItem('alarab777_api_key') || '';
+        
+    } catch(e) {}
+    
+    if (window.buildSystemPrompt) {
+        cfg.systemPrompt = window.buildSystemPrompt();
+    }
+    return cfg;
+}
+
+function saveSettings() {
+    config.provider = document.getElementById('cfg-provider').value;
+    config.level = document.getElementById('cfg-model').value;
+
+    localStorage.setItem('alarab777_voice_provider', config.provider);
+    localStorage.setItem('alarab777_intelligence_level', config.level);
+    
+    // Reboot with new resolved settings
+    config = loadConfig();
+
+    closeAdminPanel();
+    updateBadge();
+    log(`System Rebooted | Provider: ${config.provider} | Level: ${config.level}`, 'ok');
+    setState(STATE.IDLE, 'Configuration saved — double-click to start');
+}
+
+function populateSettingsUI() {
+    document.getElementById('cfg-provider').value = config.provider || 'openai';
+    document.getElementById('cfg-model').value = config.level || 'pro';
+}
+
+function openAdminPanel() {
+    document.getElementById('admin-panel').classList.add('open');
+    document.getElementById('overlay').classList.add('show');
+    document.getElementById('admin-login').style.display = 'flex';
+    document.getElementById('admin-settings').style.display = 'none';
+    document.getElementById('admin-pwd').value = '';
+    document.getElementById('admin-error').textContent = '';
+    document.getElementById('admin-pwd').focus();
+}
+
+function closeAdminPanel() {
+    document.getElementById('admin-panel').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+}
+
+function unlockAdmin() {
+    const pwd = document.getElementById('admin-pwd').value.trim();
+    if (pwd === '777') {
+        document.getElementById('admin-login').style.display = 'none';
+        document.getElementById('admin-settings').style.display = 'flex';
+        populateSettingsUI();
+    } else {
+        document.getElementById('admin-error').textContent = 'Incorrect Password';
+    }
+}
+
+// Event Listeners for Admin UI
+document.getElementById('admin-dot').onclick = openAdminPanel;
+document.getElementById('admin-unlock').onclick = unlockAdmin;
+document.getElementById('save-settings').onclick = saveSettings;
+document.getElementById('admin-pwd').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') unlockAdmin();
+});
+
+// ═══════════════════════════════════════════
+// State Machine
+// ═══════════════════════════════════════════
+function setState(state, detail) {
+    currentState = state;
+    const labels = {
+        [STATE.IDLE]: 'READY',
+        [STATE.CONNECTING]: 'CONNECTING...',
+        [STATE.LISTENING]: '● LISTENING',
+        [STATE.THINKING]: '⟳ THINKING...',
+        [STATE.SPEAKING]: '◉ SPEAKING',
+        [STATE.ERROR]: '✕ ERROR'
+    };
+    stateEl.textContent = labels[state] || state;
+    stateEl.className = 'state-' + state.toLowerCase();
+    if (detail) detailEl.textContent = detail;
+
+    // Button classes
+    btnEl.className = '';
+    if (state === STATE.LISTENING || state === STATE.THINKING) btnEl.classList.add('active');
+    if (state === STATE.SPEAKING) { btnEl.classList.add('active', 'speaking'); }
+    if (state === STATE.ERROR) btnEl.classList.add('error');
+}
+
+function updateBadge() {
+    const names = { openai: 'OpenAI Realtime', gemini: 'Google Gemini', elevenlabs: 'ElevenLabs', hume: 'Hume EVI', custom: 'Custom API' };
+    badgeEl.textContent = names[config.provider] || config.provider;
+    if (config.provider === 'custom' && config.customName) {
+        badgeEl.textContent = config.customName;
+    }
+}
+
+// ═══════════════════════════════════════════
+// Logging
+// ═══════════════════════════════════════════
+function log(msg, level = 'info') {
+    const ts = new Date().toLocaleTimeString();
+    const cls = level === 'error' ? 'log-error' : level === 'warn' ? 'log-warn' : level === 'ok' ? 'log-ok' : '';
+    logEl.innerHTML += `<span class="${cls}">[${ts}] ${msg}</span>\n`;
+    logEl.scrollTop = logEl.scrollHeight;
+    console.log(`[Voice ${level}] ${msg}`);
+}
+
+function toggleLog() {
+    document.getElementById('log-panel').classList.toggle('open');
+}
+
+document.getElementById('log-toggle').onclick = toggleLog;
+
+// ═══════════════════════════════════════════
+// Main Toggle (Double-Click)
+// ═══════════════════════════════════════════
+async function toggleVoice() {
+    if (isSessionActive) {
+        stopSession();
+    } else {
+        await startSession();
+    }
+}
+
+document.getElementById('voice-btn').ondblclick = toggleVoice;
+
+async function startSession() {
+    const provider = config.provider;
+    log(`Starting session with provider: ${provider}`);
+
+    // Validate global key
+    const key = config.apiKey;
+    if (!key) {
+        setState(STATE.ERROR, `No API key set. Open Admin Panel to add your key for ${provider}.`);
+        log(`Missing API key`, 'error');
+        return;
+    }
+
+    setState(STATE.CONNECTING, `Connecting to ${provider}...`);
+
+    try {
+        switch (provider) {
+            case 'openai': await startOpenAI(); break;
+            case 'gemini': await startGemini(); break;
+            case 'elevenlabs': await startElevenLabs(); break;
+            case 'hume': await startHume(); break;
+            case 'custom':
+                setState(STATE.ERROR, `Custom Provider (${config.customName}) logic must be implemented in js/providers/custom.js`);
+                log(`Custom provider selected but no generic handler exists yet.`, 'warn');
+                isSessionActive = false;
+                break;
+        }
+    } catch (err) {
+        setState(STATE.ERROR, `Failed to connect: ${err.message}`);
+        log(`Connection error: ${err.message}`, 'error');
+        isSessionActive = false;
+    }
+}
+
+function stopSession() {
+    log('Stopping session...');
+    isSessionActive = false;
+
+    // Clean up all possible connections
+    if (peerConnection) { peerConnection.close(); peerConnection = null; }
+    if (dataChannel) { dataChannel = null; }
+    if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+    if (audioElement) { audioElement.pause(); audioElement.srcObject = null; audioElement = null; }
+    if (geminiWs) { geminiWs.close(); geminiWs = null; }
+    if (elevenLabsWs) { elevenLabsWs.close(); elevenLabsWs = null; }
+    if (humeWs) { humeWs.close(); humeWs = null; }
+    if (audioContext) { audioContext.close().catch(()=>{}); audioContext = null; }
+
+    setState(STATE.IDLE, 'Session ended — double-click to start again');
+    log('Session stopped', 'ok');
+}
+
+// Ensure globally available for DOM event handlers
+window.toggleSettings = openAdminPanel; // Alias for any existing old calls
+window.saveSettings = saveSettings;
+window.toggleVoice = toggleVoice;
+window.toggleLog = toggleLog;
+window.log = log;
+window.setState = setState;
+window.stopSession = stopSession;
+window.STATE = STATE;
+
+// Initialize config override if previously saved
+config = loadConfig();
+
+// ═══════════════════════════════════════════
+// Init
+// ═══════════════════════════════════════════
+window.onload = () => {
+    updateBadge();
+    log('Voice interface ready');
+    log(`Active Persona: ${config.persona}`);
+    log(`Active provider: ${config.provider}`);
+};

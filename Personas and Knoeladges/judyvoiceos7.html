@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JudyVoiceOS7 | نفرتيتي</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #f0f0f0;
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Helvetica Neue', sans-serif;
+  cursor: crosshair;
+  transition: background 0.6s ease;
+}
+
+body.active { background: #e8e8e8; }
+
+/* ── SYSTEM LABEL ── */
+.sys-label {
+  position: fixed; top: 1.5rem; left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6rem; letter-spacing: 5px;
+  color: rgba(0,0,0,0.2); text-transform: uppercase;
+  pointer-events: none;
+  transition: color 0.4s;
+  z-index: 50;
+}
+body.active .sys-label { color: rgba(0,0,0,0.5); }
+
+/* ── HINT ── */
+.hint {
+  position: fixed; bottom: 1.5rem; left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6rem; letter-spacing: 3px;
+  color: rgba(0,0,0,0.18); text-transform: uppercase;
+  pointer-events: none; z-index: 50;
+  transition: opacity 0.4s;
+}
+body.active .hint { opacity: 0; }
+
+/* ── TRANSCRIPT ── */
+.transcript {
+  position: fixed; bottom: 2.5rem; left: 50%;
+  transform: translateX(-50%);
+  width: min(500px, 85vw);
+  text-align: center;
+  font-size: 0.85rem; line-height: 1.7;
+  color: rgba(0,0,0,0.5);
+  pointer-events: none; z-index: 50;
+  opacity: 0; transition: opacity 0.4s;
+  min-height: 2rem;
+}
+.transcript.show { opacity: 1; }
+
+/* ── SCENE ── */
+.scene {
+  position: relative;
+  width: 400px; height: 400px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── ORB ── */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  transition: transform 0.08s ease-out;
+  will-change: transform;
+}
+
+/* Center orb (main) */
+.orb-0 {
+  width: 110px; height: 110px;
+  background: radial-gradient(circle at 38% 35%, #ffffff, #b0b0b0 50%, #888 100%);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.18),
+    0 2px 8px rgba(0,0,0,0.12),
+    inset 0 1px 2px rgba(255,255,255,0.9),
+    inset 0 -2px 6px rgba(0,0,0,0.15);
+  z-index: 10;
+  cursor: pointer;
+}
+
+/* Satellite orbs */
+.orb-1,.orb-2,.orb-3,.orb-4,.orb-5,.orb-6 {
+  width: 52px; height: 52px;
+  background: radial-gradient(circle at 38% 35%, #ffffff, #c0c0c0 50%, #999 100%);
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.14),
+    inset 0 1px 2px rgba(255,255,255,0.8),
+    inset 0 -1px 4px rgba(0,0,0,0.12);
+  z-index: 5;
+}
+
+/* Positions (hex ring) */
+.orb-1 { transform: translate(-130px, 0); }
+.orb-2 { transform: translate(-65px, -112px); }
+.orb-3 { transform: translate(65px, -112px); }
+.orb-4 { transform: translate(130px, 0); }
+.orb-5 { transform: translate(65px, 112px); }
+.orb-6 { transform: translate(-65px, 112px); }
+
+/* Active state - orbs become tinted */
+body.active .orb-0 {
+  background: radial-gradient(circle at 38% 35%, #ffffff, #aaa8aa 50%, #666 100%);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.22),
+    0 0 40px rgba(180,180,200,0.3),
+    inset 0 1px 2px rgba(255,255,255,0.9),
+    inset 0 -2px 6px rgba(0,0,0,0.2);
+}
+
+/* Voice pulse ring */
+.pulse-ring {
+  position: absolute;
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  border: 2px solid rgba(100,100,120,0.3);
+  pointer-events: none; z-index: 9;
+  transform: scale(1);
+  opacity: 0;
+  transition: none;
+}
+.pulse-ring.animate {
+  animation: pulseOut 0.8s ease-out forwards;
+}
+@keyframes pulseOut {
+  from { transform: scale(1); opacity: 0.6; }
+  to   { transform: scale(2.2); opacity: 0; }
+}
+
+/* Listening ripple */
+.listen-ring {
+  position: absolute;
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(80,80,180,0.25);
+  pointer-events: none; z-index: 8;
+  opacity: 0;
+}
+body.listening .listen-ring {
+  opacity: 1;
+  animation: listenRipple 1.4s ease-in-out infinite;
+}
+@keyframes listenRipple {
+  0%,100% { transform: scale(1); opacity: 0.5; }
+  50%      { transform: scale(1.5); opacity: 0; }
+}
+
+/* Connection lines between orbs */
+.lines-svg {
+  position: absolute; inset: 0;
+  width: 400px; height: 400px;
+  pointer-events: none; z-index: 1;
+  overflow: visible;
+}
+.conn-line {
+  stroke: rgba(0,0,0,0.06);
+  stroke-width: 1;
+  transition: stroke 0.4s, opacity 0.4s;
+}
+body.active .conn-line {
+  stroke: rgba(0,0,0,0.1);
+  opacity: 0.8;
+}
+body.listening .conn-line {
+  stroke: rgba(80,80,180,0.15);
+}
+body.speaking .conn-line {
+  stroke: rgba(40,120,80,0.15);
+  animation: lineFlicker 0.3s ease-in-out infinite alternate;
+}
+@keyframes lineFlicker {
+  from { opacity: 0.6; }
+  to   { opacity: 1; }
+}
+
+/* State classes on body */
+body.listening .orb-0 {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2), 0 0 30px rgba(80,80,200,0.2);
+}
+body.speaking .orb-0 {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2), 0 0 30px rgba(40,160,100,0.2);
+  animation: speakBounce 0.5s ease-in-out infinite;
+}
+@keyframes speakBounce {
+  0%,100% { transform: scale(1); }
+  50%      { transform: scale(1.04); }
+}
+</style>
+</head>
+<body id="body">
+
+<div class="sys-label" id="sysLabel">JudyVoiceOS7 · نفرتيتي · STANDBY</div>
+<div class="hint">double click to activate</div>
+<div class="transcript" id="transcript"></div>
+
+<div class="scene" id="scene">
+
+  <!-- Connection lines -->
+  <svg class="lines-svg" viewBox="-200 -200 400 400">
+    <line class="conn-line" x1="0" y1="0" x2="-130" y2="0"/>
+    <line class="conn-line" x1="0" y1="0" x2="-65" y2="-112"/>
+    <line class="conn-line" x1="0" y1="0" x2="65" y2="-112"/>
+    <line class="conn-line" x1="0" y1="0" x2="130" y2="0"/>
+    <line class="conn-line" x1="0" y1="0" x2="65" y2="112"/>
+    <line class="conn-line" x1="0" y1="0" x2="-65" y2="112"/>
+    <!-- outer ring -->
+    <line class="conn-line" x1="-130" y1="0" x2="-65" y2="-112" opacity="0.5"/>
+    <line class="conn-line" x1="-65" y1="-112" x2="65" y2="-112" opacity="0.5"/>
+    <line class="conn-line" x1="65" y1="-112" x2="130" y2="0" opacity="0.5"/>
+    <line class="conn-line" x1="130" y1="0" x2="65" y2="112" opacity="0.5"/>
+    <line class="conn-line" x1="65" y1="112" x2="-65" y2="112" opacity="0.5"/>
+    <line class="conn-line" x1="-65" y1="112" x2="-130" y2="0" opacity="0.5"/>
+  </svg>
+
+  <!-- Pulse/listen rings -->
+  <div class="listen-ring"></div>
+  <div class="pulse-ring" id="pulseRing"></div>
+
+  <!-- 7 orbs -->
+  <div class="orb orb-0" id="orb0" data-base-x="0"   data-base-y="0"   data-depth="1.0"></div>
+  <div class="orb orb-1" id="orb1" data-base-x="-130" data-base-y="0"   data-depth="0.6"></div>
+  <div class="orb orb-2" id="orb2" data-base-x="-65"  data-base-y="-112" data-depth="0.7"></div>
+  <div class="orb orb-3" id="orb3" data-base-x="65"   data-base-y="-112" data-depth="0.5"></div>
+  <div class="orb orb-4" id="orb4" data-base-x="130"  data-base-y="0"   data-depth="0.8"></div>
+  <div class="orb orb-5" id="orb5" data-base-x="65"   data-base-y="112"  data-depth="0.65"></div>
+  <div class="orb orb-6" id="orb6" data-base-x="-65"  data-base-y="112"  data-depth="0.55"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  JudyVoiceOS7 — نفرتيتي
+//  Multi-API: tries Groq first, falls back to OpenAI
+//  Keys: /api/chat + /api/tts (backend proxy)
+//  OR: set keys below for direct mode (dev only)
+// ═══════════════════════════════════════════════
+
+const CONFIG = {
+  // For production: use '' and set keys in Vercel env
+  // For local test: paste keys here temporarily
+  GROQ_KEY:   '',
+  OPENAI_KEY: '',
+  // API mode: 'proxy' (Vercel) | 'direct' (keys above)
+  MODE: 'proxy'
+};
+
+const SYSTEM = `أنت نفرتيتي، بنت مصرية ذكية وجدعة، خبيرة بالجيزة والأهرامات.
+ردودك قصيرة جداً: جملة أو جملتين. عامية مصرية خفيفة وممتعة.
+تحمي الزبون من النصب. للحجز: واتساب 201288063037.
+لا تقل أنك ذكاء اصطناعي أبداً.`;
+
+let isActive  = false;
+let state     = 'idle'; // idle | listening | thinking | speaking
+let recog     = null;
+let history   = [];
+let curAudio  = null;
+let transTimer = null;
+
+const body    = document.getElementById('body');
+const sysLbl  = document.getElementById('sysLabel');
+const tranEl  = document.getElementById('transcript');
+const pulse   = document.getElementById('pulseRing');
+const orbs    = Array.from({length:7}, (_,i) => document.getElementById('orb'+i));
+
+// ── Double-click toggle ──
+body.addEventListener('dblclick', () => {
+  if (!isActive) activate();
+  else deactivate();
+});
+
+function activate() {
+  isActive = true;
+  body.classList.add('active');
+  setLabel('SYSTEM: ACTIVE — تكلم');
+  setTimeout(() => startListen(), 600);
+}
+
+function deactivate() {
+  isActive = false;
+  stopRecog(); stopAudio();
+  setState('idle');
+  body.classList.remove('active','listening','thinking','speaking');
+  setLabel('JudyVoiceOS7 · نفرتيتي · STANDBY');
+  history = [];
+}
+
+// ── Mouse parallax ──
+let mx = 0, my = 0;
+const scene = document.getElementById('scene');
+const sceneRect = () => scene.getBoundingClientRect();
+
+document.addEventListener('mousemove', e => {
+  const r   = sceneRect();
+  const cx  = r.left + r.width  / 2;
+  const cy  = r.top  + r.height / 2;
+  mx = (e.clientX - cx) / (window.innerWidth  / 2);
+  my = (e.clientY - cy) / (window.innerHeight / 2);
+  moveOrbs();
+});
+
+function moveOrbs() {
+  orbs.forEach(orb => {
+    const bx    = parseFloat(orb.dataset.baseX);
+    const by    = parseFloat(orb.dataset.baseY);
+    const depth = parseFloat(orb.dataset.depth);
+    const px    = bx + mx * 18 * depth;
+    const py    = by + my * 18 * depth;
+    orb.style.transform = `translate(${px}px, ${py}px)`;
+  });
+}
+moveOrbs();
+
+// ── Voice reaction (pulse orbs) ──
+function pulseBeat(intensity = 1) {
+  const scale = 1 + intensity * 0.08;
+  orbs[0].style.transition = 'transform 0.05s ease-out';
+  orbs[0].style.transform  = `translate(0px,0px) scale(${scale})`;
+  setTimeout(() => { orbs[0].style.transform = `translate(${mx*18}px,${my*18}px)`; }, 80);
+
+  // pulse ring
+  pulse.classList.remove('animate');
+  void pulse.offsetWidth;
+  pulse.classList.add('animate');
+}
+
+// ── State ──
+function setState(s) {
+  state = s;
+  body.classList.remove('listening','thinking','speaking');
+  if (s !== 'idle') body.classList.add(s);
+}
+
+function setLabel(txt) {
+  sysLbl.textContent = txt;
+}
+
+function showTrans(txt, duration = 6000) {
+  tranEl.textContent = txt;
+  tranEl.classList.add('show');
+  clearTimeout(transTimer);
+  if (duration > 0) transTimer = setTimeout(() => tranEl.classList.remove('show'), duration);
+}
+
+// ── Speech recognition ──
+function startListen() {
+  if (!isActive || state === 'speaking') return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { showTrans('⚠️ استخدم Chrome'); return; }
+
+  recog = new SR();
+  recog.lang = 'ar-EG';
+  recog.interimResults = true;
+  recog.continuous = false;
+
+  recog.onstart = () => {
+    setState('listening');
+    setLabel('نفرتيتي تسمع...');
+  };
+
+  recog.onresult = (e) => {
+    const interim = Array.from(e.results).map(r => r[0].transcript).join('');
+    showTrans(interim, 0);
+    pulseBeat(0.5);
+
+    if (e.results[e.results.length-1].isFinal) {
+      const final = e.results[e.results.length-1][0].transcript;
+      handleInput(final);
+    }
+  };
+
+  recog.onerror = (e) => {
+    if (e.error !== 'aborted') {
+      showTrans('خطأ: ' + e.error);
+      setTimeout(() => { if(isActive) startListen(); }, 1500);
+    }
+  };
+
+  recog.onend = () => {
+    if (state === 'listening') setState('idle');
+  };
+
+  recog.start();
+}
+
+function stopRecog() { try { recog?.stop(); } catch(e){} }
+
+async function handleInput(text) {
+  stopRecog();
+  setState('thinking');
+  setLabel('نفرتيتي بتفكر...');
+  showTrans('أنت: ' + text, 4000);
+  pulseBeat(1);
+
+  const reply = await askAI(text);
+  if (reply && isActive) {
+    await speak(reply);
+  } else if (isActive) {
+    setState('idle');
+    setTimeout(() => startListen(), 500);
+  }
+}
+
+// ── AI (multi-API with fallback) ──
+async function askAI(text) {
+  history.push({ role:'user', content:text });
+  if (history.length > 12) history = history.slice(-12);
+
+  // Try proxy first (production), then direct (dev)
+  if (CONFIG.MODE === 'proxy') {
+    return await askProxy(text);
+  } else {
+    return await askGroqDirect() || await askOpenAIDirect();
+  }
+}
+
+async function askProxy() {
+  try {
+    const res = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ messages: history })
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error);
+    history.push({ role:'assistant', content:d.reply });
+    return d.reply;
+  } catch(e) {
+    // fallback to direct if keys available
+    if (CONFIG.GROQ_KEY) return await askGroqDirect();
+    showTrans('⚠️ API error: ' + e.message);
+    return null;
+  }
+}
+
+async function askGroqDirect() {
+  if (!CONFIG.GROQ_KEY) return null;
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+CONFIG.GROQ_KEY},
+      body: JSON.stringify({
+        model:'llama-3.3-70b-versatile', max_tokens:120, temperature:0.85,
+        messages:[{role:'system',content:SYSTEM},...history.slice(-10)]
+      })
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error?.message);
+    const r = d.choices[0].message.content.trim();
+    history.push({role:'assistant',content:r});
+    return r;
+  } catch(e) { return null; }
+}
+
+async function askOpenAIDirect() {
+  if (!CONFIG.OPENAI_KEY) return null;
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+CONFIG.OPENAI_KEY},
+      body: JSON.stringify({
+        model:'gpt-4o-mini', max_tokens:120, temperature:0.85,
+        messages:[{role:'system',content:SYSTEM},...history.slice(-10)]
+      })
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error?.message);
+    const r = d.choices[0].message.content.trim();
+    history.push({role:'assistant',content:r});
+    return r;
+  } catch(e) { return null; }
+}
+
+// ── TTS ──
+async function speak(text) {
+  setState('speaking');
+  setLabel('نفرتيتي بتتكلم...');
+  showTrans('نفرتيتي: ' + text, 0);
+  pulseBeat(1.5);
+
+  // Try proxy TTS first, then Web Speech fallback
+  const success = await ttsProxy(text) || ttsWebSpeech(text);
+  if (!success) { setState('idle'); if(isActive) setTimeout(startListen, 500); }
+}
+
+async function ttsProxy(text) {
+  if (CONFIG.MODE !== 'proxy' && !CONFIG.OPENAI_KEY) return false;
+
+  try {
+    let res;
+    if (CONFIG.MODE === 'proxy') {
+      res = await fetch('/api/tts', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ text })
+      });
+    } else {
+      res = await fetch('https://api.openai.com/v1/audio/speech', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+CONFIG.OPENAI_KEY},
+        body: JSON.stringify({ model:'tts-1', input:text, voice:'shimmer', response_format:'mp3', speed:1.05 })
+      });
+    }
+    if (!res.ok) return false;
+
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    curAudio   = new Audio(url);
+
+    // Voice-driven orb animation
+    const beatInterval = setInterval(() => pulseBeat(0.6), 300);
+
+    curAudio.onended = () => {
+      clearInterval(beatInterval);
+      URL.revokeObjectURL(url);
+      setState('idle');
+      tranEl.classList.remove('show');
+      if (isActive) setTimeout(startListen, 700);
+    };
+    curAudio.onerror = () => { clearInterval(beatInterval); setState('idle'); };
+    await curAudio.play();
+    return true;
+  } catch(e) { return false; }
+}
+
+function ttsWebSpeech(text) {
+  if (!window.speechSynthesis) return false;
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(text);
+  utt.lang   = 'ar-EG'; utt.rate = 1.05;
+
+  // Beat interval for orbs
+  const beatInterval = setInterval(() => pulseBeat(0.5), 350);
+
+  utt.onend  = () => {
+    clearInterval(beatInterval);
+    setState('idle');
+    tranEl.classList.remove('show');
+    if (isActive) setTimeout(startListen, 700);
+  };
+  utt.onerror = () => { clearInterval(beatInterval); setState('idle'); };
+  window.speechSynthesis.speak(utt);
+  return true;
+}
+
+function stopAudio() {
+  if (curAudio) { curAudio.pause(); curAudio = null; }
+  window.speechSynthesis?.cancel();
+}
+
+// ── Keyboard shortcuts ──
+document.addEventListener('keydown', e => {
+  if (e.key === ' ')      { e.preventDefault(); if(!isActive) activate(); }
+  if (e.key === 'Escape') { deactivate(); }
+});
+</script>
+</body>
+</html>

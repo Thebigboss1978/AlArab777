@@ -1,0 +1,7 @@
+{
+  "name": "Hathor Voice Point",
+  "description": "Minimalist Voice Interface",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
