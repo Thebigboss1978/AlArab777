@@ -181,7 +181,9 @@ function log(msg, level = 'info') {
     const cls = level === 'error' ? 'log-error' : level === 'warn' ? 'log-warn' : level === 'ok' ? 'log-ok' : '';
     logEl.innerHTML += `<span class="${cls}">[${ts}] ${msg}</span>\n`;
     logEl.scrollTop = logEl.scrollHeight;
-    console.log(`[Voice ${level}] ${msg}`);
+    
+    // Bridge to Global Sovereign Logger
+    if (window.SOVEREIGN) window.SOVEREIGN.log(msg, level);
 }
 
 function toggleLog() {
@@ -205,19 +207,12 @@ document.getElementById('voice-btn').ondblclick = toggleVoice;
 
 async function startSession() {
     const provider = config.provider;
-    log(`Starting session with provider: ${provider}`);
-
-    // Validate global key
-    const key = config.apiKey;
-    if (!key) {
-        setState(STATE.ERROR, `No API key set. Open Admin Panel to add your key for ${provider}.`);
-        log(`Missing API key`, 'error');
-        return;
-    }
-
-    setState(STATE.CONNECTING, `Connecting to ${provider}...`);
-
     try {
+        log(`Active Engine: ${provider} | Model: ${config.model}`);
+        if (provider === 'elevenlabs') {
+            log(`ElevenLabs Agent Active: ${config.elevenlabsAgent}`);
+        }
+        
         switch (provider) {
             case 'openai': await startOpenAI(); break;
             case 'gemini': await startGemini(); break;
@@ -232,7 +227,7 @@ async function startSession() {
     } catch (err) {
         log(`Connection error with ${provider}: ${err.message}`, 'error');
         
-        // Still Healing Logic: Auto-pivot on failure (e.g. 503 Capacity Exhausted)
+        // Still Healing Logic: Auto-pivot on failure
         const providers = ['openai', 'gemini', 'elevenlabs', 'hume'];
         const currentIndex = providers.indexOf(provider);
         const nextProvider = providers[(currentIndex + 1) % providers.length];
@@ -240,9 +235,18 @@ async function startSession() {
         log(`Still Healing... Pivoting from ${provider} to ${nextProvider}`, 'warn');
         config.provider = nextProvider;
         updateBadge();
-        await startSession(); // Recurse to next provider
+        await startSession(); 
     }
 }
+
+// Global Pivot Helper
+window.pivotProvider = () => {
+    const providers = ['openai', 'gemini', 'elevenlabs', 'hume'];
+    const nextProvider = providers[(providers.indexOf(config.provider) + 1) % providers.length];
+    config.provider = nextProvider;
+    updateBadge();
+    startSession();
+};
 
 function stopSession() {
     log('Stopping session...');
