@@ -49,10 +49,9 @@ function loadConfig() {
         let personaId = identity.PERSONA || 'malika'; 
         cfg.persona = window.PERSONAS ? window.PERSONAS[personaId] : null;
 
-        // Resolve Model based on Provider + Level from config.js
-        if (MODELS[cfg.provider] && MODELS[cfg.provider][cfg.level]) {
-            cfg.model = MODELS[cfg.provider][cfg.level];
-        }
+        // Open Model Resolution (Ka'b al-Daftar)
+        // We do not restrict to a list. We take what the pipe gives us.
+        cfg.model = localStorage.getItem('alarab777_custom_model') || window.MODEL_DEFAULTS[cfg.provider] || cfg.model;
 
         // Fetch API Key from environment based on selected provider
         const envKeyName = `${cfg.provider.toUpperCase()}_API_KEY`;
@@ -72,6 +71,7 @@ function saveSettings() {
 
     localStorage.setItem('alarab777_voice_provider', config.provider);
     localStorage.setItem('alarab777_intelligence_level', config.level);
+    localStorage.setItem('alarab777_custom_model', document.getElementById('cfg-custom-model').value.trim());
     
     // Reboot with new resolved settings
     config = loadConfig();
@@ -85,6 +85,7 @@ function saveSettings() {
 function populateSettingsUI() {
     document.getElementById('cfg-provider').value = config.provider || 'openai';
     document.getElementById('cfg-model').value = config.level || 'pro';
+    document.getElementById('cfg-custom-model').value = localStorage.getItem('alarab777_custom_model') || '';
 }
 
 function openAdminPanel() {

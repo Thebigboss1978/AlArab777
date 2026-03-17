@@ -51,12 +51,17 @@
             </div>
 
             <div class="setting-group">
-                <label>Intelligence Level / Model</label>
+                <label>Intelligence Level / Speed</label>
                 <select id="cfg-model">
-                    <option value="pro">Pro (Full context, High Reasoning)</option>
-                    <option value="flash">Flash (Low Latency, Speed)</option>
-                    <option value="creative">Creative (Narrative, Personality)</option>
+                    <option value="pro">Pro (Full context)</option>
+                    <option value="flash">Flash (Speed)</option>
                 </select>
+            </div>
+
+            <div class="setting-group">
+                <label>Model Override (Open Pipe)</label>
+                <input type="text" id="cfg-custom-model" placeholder="e.g. gpt-4o-canary">
+                <small style="color: #666; font-size: 10px;">Leave empty to use defaults.</small>
             </div>
 
             <button id="save-settings">Apply & Reboot</button>

@@ -14,30 +14,16 @@ const DEFAULT_CONFIG = {
     elevenlabsAgent: 'agent_1101k5jz8k53fne8rf3h290hwyyr',
 };
 
-// Model Resolution Logic
-const MODELS = {
-    openai: {
-        pro: 'gpt-4o-realtime-preview-2024-12-17',
-        flash: 'gpt-4o-mini-realtime-preview',
-        creative: 'gpt-4o-realtime-preview'
-    },
-    gemini: {
-        pro: 'gemini-2.0-flash-exp',
-        flash: 'gemini-2.0-flash-exp',
-        creative: 'gemini-2.0-flash-exp'
-    },
-    elevenlabs: {
-        pro: 'conversational-ai',
-        flash: 'conversational-ai',
-        creative: 'conversational-ai'
-    },
-    hume: {
-        pro: 'evi-v2',
-        flash: 'evi-v2',
-        creative: 'evi-v2'
-    }
+// Open Model Defaults (Spine)
+// These are not "Restrictions", they are just starting points.
+// You can override these via localStorage ('alarab777_custom_model') at any time.
+const MODEL_DEFAULTS = {
+    openai: 'gpt-4o-realtime-preview-2024-12-17',
+    gemini: 'gemini-2.0-flash-exp',
+    elevenlabs: 'conversational-ai',
+    hume: 'evi-v2'
 };
 
 // Expose globally
-window.DEFAULT_CONFIG = DEFAULT_CONFIG;
+window.MODEL_DEFAULTS = MODEL_DEFAULTS;
 window.config = { ...DEFAULT_CONFIG };
