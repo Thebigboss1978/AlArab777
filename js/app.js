@@ -44,13 +44,9 @@ function loadConfig() {
         if (p) cfg.provider = p;
         if (l) cfg.level = l;
 
-        // Dynamic Persona Resolution
-        // If identity says GIZA/EGYPT -> Default to Malika
-        // If identity says JORDAN -> Default to Judy
-        let personaId = 'malika'; // Default
-        if (identity.BRAND && identity.BRAND.includes('GIZA')) personaId = 'malika';
-        if (identity.LOC && identity.LOC.includes('JORDAN')) personaId = 'judy';
-        
+        // Pure Identity-Driven Persona Selection
+        // The identity string in index.html should now include PERSONA:malika or PERSONA:judy
+        let personaId = identity.PERSONA || 'malika'; 
         cfg.persona = window.PERSONAS ? window.PERSONAS[personaId] : null;
 
         // Resolve Model based on Provider + Level from config.js
