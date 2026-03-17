@@ -35,12 +35,23 @@ const logEl = document.getElementById('log-content');
 // ═══════════════════════════════════════════
 function loadConfig() {
     let cfg = { ...DEFAULT_CONFIG };
+    const identity = window.resolveSovereignIdentity ? window.resolveSovereignIdentity() : {};
+    
     try {
         const p = localStorage.getItem('alarab777_voice_provider');
         const l = localStorage.getItem('alarab777_intelligence_level');
         
         if (p) cfg.provider = p;
         if (l) cfg.level = l;
+
+        // Dynamic Persona Resolution
+        // If identity says GIZA/EGYPT -> Default to Malika
+        // If identity says JORDAN -> Default to Judy
+        let personaId = 'malika'; // Default
+        if (identity.BRAND && identity.BRAND.includes('GIZA')) personaId = 'malika';
+        if (identity.LOC && identity.LOC.includes('JORDAN')) personaId = 'judy';
+        
+        cfg.persona = window.PERSONAS ? window.PERSONAS[personaId] : null;
 
         // Resolve Model based on Provider + Level from config.js
         if (MODELS[cfg.provider] && MODELS[cfg.provider][cfg.level]) {
@@ -53,8 +64,8 @@ function loadConfig() {
         
     } catch(e) {}
     
-    if (window.buildSystemPrompt) {
-        cfg.systemPrompt = window.buildSystemPrompt();
+    if (cfg.persona) {
+        cfg.systemPrompt = cfg.persona.instruction;
     }
     return cfg;
 }
@@ -244,8 +255,19 @@ config = loadConfig();
 // Init
 // ═══════════════════════════════════════════
 window.onload = () => {
+    const identity = window.resolveSovereignIdentity ? window.resolveSovereignIdentity() : {};
+    
+    // Update SEO dynamically if identity is present
+    if (identity.BRAND) {
+        document.title = `Sovereign OS | ${identity.BRAND}`;
+        const desc = document.getElementById('meta-desc');
+        if (desc) desc.content = `AlArab 777 Sovereign Voice Interface - ${identity.BRAND}. Branch: ${identity.LOC || 'Global'}`;
+    }
+
     updateBadge();
     log('Voice interface ready');
-    log(`Active Persona: ${config.persona}`);
+    if (config.persona) {
+        log(`Active Persona: ${config.persona.name} (${config.persona.role})`);
+    }
     log(`Active provider: ${config.provider}`);
 };
