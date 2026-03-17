@@ -1,10 +1,10 @@
-// ═══════════════════════════════════════════
-// 4. Hume EVI (WebSocket)
-// ═══════════════════════════════════════════
+
+
+
 async function startHume() {
     log('Hume: Starting EVI session...');
 
-    const wsUrl = `wss://api.hume.ai/v0/evi/chat?api_key=${config.apiKey}`;
+    const wsUrl = `wss:
     humeWs = new WebSocket(wsUrl);
 
     humeWs.onopen = async () => {
@@ -12,7 +12,7 @@ async function startHume() {
         isSessionActive = true;
         setState(STATE.LISTENING, 'Connected — speak now');
 
-        // Start mic streaming
+        
         mediaStream = await navigator.mediaDevices.getUserMedia({ audio: { sampleRate: 16000, channelCount: 1 } });
         audioContext = new AudioContext({ sampleRate: 16000 });
         const source = audioContext.createMediaStreamSource(mediaStream);

@@ -1,6 +1,6 @@
-// ═══════════════════════════════════════════
-// 3. ElevenLabs Conversational AI (WebSocket)
-// ═══════════════════════════════════════════
+
+
+
 async function startElevenLabs() {
     log('ElevenLabs: Starting conversational session...');
 
@@ -9,8 +9,8 @@ async function startElevenLabs() {
         throw new Error('ElevenLabs Agent ID is required. Set it in Settings.');
     }
 
-    // Get signed URL
-    const signResp = await fetch(`https://api.elevenlabs.io/v1/convai/conversation/get_signed_url?agent_id=${agentId}`, {
+    
+    const signResp = await fetch(`https:
         headers: { 'xi-api-key': config.apiKey }
     });
 
@@ -29,7 +29,7 @@ async function startElevenLabs() {
         isSessionActive = true;
         setState(STATE.LISTENING, 'Connected — speak now');
 
-        // Start sending mic audio
+        
         mediaStream = await navigator.mediaDevices.getUserMedia({ audio: { sampleRate: 16000, channelCount: 1 } });
         audioContext = new AudioContext({ sampleRate: 16000 });
         const source = audioContext.createMediaStreamSource(mediaStream);

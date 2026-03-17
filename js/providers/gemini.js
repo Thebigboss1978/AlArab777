@@ -1,16 +1,16 @@
-// ═══════════════════════════════════════════
-// 2. Google Gemini Live (WebSocket)
-// ═══════════════════════════════════════════
+
+
+
 async function startGemini() {
     log('Gemini: Connecting via WebSocket...');
 
-    const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${config.apiKey}`;
+    const wsUrl = `wss:
 
     geminiWs = new WebSocket(wsUrl);
 
     geminiWs.onopen = () => {
         log('Gemini: WebSocket connected');
-        // Send setup message
+        
         const setup = {
             setup: {
                 model: config.model.startsWith('models/') ? config.model : `models/${config.model}`,

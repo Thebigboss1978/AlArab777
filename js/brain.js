@@ -1,8 +1,8 @@
-// ═══════════════════════════════════════════
-// AI PYRAMID BRAIN (Generic Cognitive Architecture)
-// ═══════════════════════════════════════════
-// Treat this file like a USB Flash Drive. 
-// To change the AI, simply overwrite this AGENT_BRAIN object.
+
+
+
+
+
 
 const PERSONAS = {
     malika: {
@@ -42,7 +42,7 @@ const PERSONAS = {
     }
 };
 
-// Logic to resolve active persona from the Sovereign ID or local config
+
 function resolveActivePersona() {
     const identity = window.resolveSovereignIdentity ? window.resolveSovereignIdentity() : {};
     const personaId = identity.PERSONA || 'malika';
@@ -75,7 +75,7 @@ function detectSkill(userText) {
     return "general";
 }
 
-// Attach the generated prompt to the global context after DOM loads
+
 window.addEventListener('load', () => {
     if(window.config) {
         window.config.systemPrompt = buildSystemPrompt();
@@ -83,7 +83,7 @@ window.addEventListener('load', () => {
     }
 });
 
-// Expose globally
+
 window.PERSONAS = PERSONAS;
 window.AGENT_BRAIN = AGENT_BRAIN;
 window.buildSystemPrompt = buildSystemPrompt;

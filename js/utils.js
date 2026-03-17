@@ -1,6 +1,6 @@
-// ═══════════════════════════════════════════
-// Utilities
-// ═══════════════════════════════════════════
+
+
+
 function arrayBufferToBase64(buffer) {
     const bytes = new Uint8Array(buffer);
     let binary = '';
@@ -14,7 +14,7 @@ function playBase64Audio(base64Data, mimeType) {
         const bytes = new Uint8Array(raw.length);
         for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
 
-        // PCM data — play via AudioContext
+        
         const playCtx = new AudioContext({ sampleRate: 24000 });
         const int16 = new Int16Array(bytes.buffer);
         const float32 = new Float32Array(int16.length);

@@ -1,11 +1,11 @@
-// ═══════════════════════════════════════════
-// 1. OpenAI Realtime (WebRTC)
-// ═══════════════════════════════════════════
+
+
+
 async function startOpenAI() {
     log('OpenAI: Requesting ephemeral token...');
 
-    // 1. Get ephemeral token
-    const tokenResp = await fetch('https://api.openai.com/v1/realtime/sessions', {
+    
+    const tokenResp = await fetch('https:
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${config.apiKey}`,
@@ -30,10 +30,10 @@ async function startOpenAI() {
     if (!ephemeralKey) throw new Error('No ephemeral key in response');
     log('OpenAI: Ephemeral token received');
 
-    // 2. Create PeerConnection
+    
     peerConnection = new RTCPeerConnection();
 
-    // Audio output
+    
     audioElement = document.createElement('audio');
     audioElement.autoplay = true;
     peerConnection.ontrack = (e) => {
@@ -41,7 +41,7 @@ async function startOpenAI() {
         log('OpenAI: Audio track received');
     };
 
-    // Data channel for events
+    
     dataChannel = peerConnection.createDataChannel('oai-events');
     dataChannel.onopen = () => {
         log('OpenAI: Data channel open');
@@ -59,17 +59,17 @@ async function startOpenAI() {
         if (isSessionActive) stopSession();
     };
 
-    // 3. Microphone
+    
     mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
     mediaStream.getTracks().forEach(t => peerConnection.addTrack(t, mediaStream));
     log('OpenAI: Microphone access granted');
 
-    // 4. Create offer and set local description
+    
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
 
-    // 5. Send to OpenAI
-    const sdpResp = await fetch(`https://api.openai.com/v1/realtime?model=${config.model}`, {
+    
+    const sdpResp = await fetch(`https:
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${ephemeralKey}`,
@@ -122,7 +122,7 @@ function handleOpenAIEvent(evt) {
         case 'response.output_item.done':
         case 'response.content_part.done':
         case 'rate_limits.updated':
-            // Silent events
+            
             break;
         default:
             log(`OpenAI event: ${evt.type}`);

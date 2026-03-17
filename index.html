@@ -15,30 +15,79 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <canvas id="neural-canvas" style="width: 100vw; height: 100vh; background: #000; display: block; cursor: none;"></canvas>
 
-    <!-- Sovereign ID & Context (Hidden) -->
-    <div id="sovereign-id" data-identity="ID:ALR777|OWNER:SHARIF_ALSHAWISH_ABUELABD|MANAGER_WHATSAPP:+201288063037|LOC:GIZA_NZLT_SMN|HQ:SKY_PYR_HTL|BRAND:GIZA7_LOCAL_INSIDE|STATUS:LEDGER_SYNC_ACTIVE|REF:Step-3011|ENV:PROD|TS:20260317T0415Z|TOPO:VOICE>STT>CHATWOOT>OLLAMA>FFMPEG_GIZA7|MODE:TURBO_1000X|SIGNAL:GIZA7_Sovereign|PERSONA:malika" style="display: none;"></div>
-
-    <!-- The Blank Playground -->
-    <div id="playground" style="width: 100vw; height: 100vh; background: #000; cursor: none;"></div>
-
-    <!-- Hidden Core Trigger (Double-Click Anywhere) -->
     <script>
+        const canvas = document.getElementById('neural-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 0.8 - 0.4;
+                this.speedY = Math.random() * 0.8 - 0.4;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = '#d4af37'; 
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            particles = [];
+            for (let i = 0; i < 60; i++) particles.push(new Particle());
+        }
+
+        function connect() {
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    let dx = particles[a].x - particles[b].x;
+                    let dy = particles[a].y - particles[b].y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 150) {
+                        ctx.strokeStyle = `rgba(212, 175, 55, ${1 - dist/150})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            connect();
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
         document.body.ondblclick = () => {
             window.location.href = 'AQUAMAN_CORE.html';
         };
+        
+        window.onresize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init();
+        };
     </script>
-
-    <!-- Essential Scripts -->
-    <script src="js/sovereign.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/brain.js"></script>
-    <script src="js/providers/openai.js"></script>
-    <script src="js/providers/gemini.js"></script>
-    <script src="js/providers/elevenlabs.js"></script>
-    <script src="js/providers/hume.js"></script>
-    <script src="js/app.js"></script>
-
 </body>
 </html>
