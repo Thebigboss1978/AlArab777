@@ -253,11 +253,19 @@ config = loadConfig();
 window.onload = () => {
     const identity = window.resolveSovereignIdentity ? window.resolveSovereignIdentity() : {};
     
-    // Update SEO dynamically if identity is present
+    // Update UI dynamically based on identity/persona
     if (identity.BRAND) {
         document.title = `Sovereign OS | ${identity.BRAND}`;
         const desc = document.getElementById('meta-desc');
         if (desc) desc.content = `AlArab 777 Sovereign Voice Interface - ${identity.BRAND}. Branch: ${identity.LOC || 'Global'}`;
+    }
+
+    // Dynamic Title & Subtitle in the Orb UI
+    const uiTitle = document.getElementById('ui-title');
+    const uiSub = document.getElementById('ui-subtitle');
+    if (config.persona) {
+        if (uiTitle) uiTitle.textContent = config.persona.name;
+        if (uiSub) uiSub.textContent = config.persona.role;
     }
 
     updateBadge();
