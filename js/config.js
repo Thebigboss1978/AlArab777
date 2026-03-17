@@ -25,6 +25,16 @@ const MODELS = {
         pro: 'gemini-2.0-flash-exp',
         flash: 'gemini-2.0-flash-exp',
         creative: 'gemini-2.0-flash-exp'
+    },
+    elevenlabs: {
+        pro: 'conversational-ai',
+        flash: 'conversational-ai',
+        creative: 'conversational-ai'
+    },
+    hume: {
+        pro: 'evi-v2',
+        flash: 'evi-v2',
+        creative: 'evi-v2'
     }
 };
 
