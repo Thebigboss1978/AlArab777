@@ -60,6 +60,8 @@ function loadConfig() {
         const envKey = window[envKeyName] || window[`VITE_${envKeyName}`] || '';
         cfg.apiKey = localStorage.getItem(`alarab777_custom_key_${cfg.provider}`) || envKey || cfg.apiKey;
         
+        // ElevenLabs Agent ID persistence
+        cfg.elevenlabsAgent = localStorage.getItem('alarab777_11labs_agent') || cfg.elevenlabsAgent;
     } catch(e) {}
     
     if (cfg.persona) {
@@ -76,6 +78,7 @@ function saveSettings() {
     localStorage.setItem('alarab777_intelligence_level', config.level);
     localStorage.setItem('alarab777_custom_model', document.getElementById('cfg-custom-model').value.trim());
     localStorage.setItem(`alarab777_custom_key_${config.provider}`, document.getElementById('cfg-custom-key').value.trim());
+    localStorage.setItem('alarab777_11labs_agent', document.getElementById('cfg-11labs-agent').value.trim());
     
     // Reboot with new resolved settings
     config = loadConfig();
@@ -91,7 +94,18 @@ function populateSettingsUI() {
     document.getElementById('cfg-model').value = config.level || 'pro';
     document.getElementById('cfg-custom-model').value = localStorage.getItem('alarab777_custom_model') || '';
     document.getElementById('cfg-custom-key').value = localStorage.getItem(`alarab777_custom_key_${config.provider}`) || '';
+    document.getElementById('cfg-11labs-agent').value = localStorage.getItem('alarab777_11labs_agent') || config.elevenlabsAgent || '';
+    
+    // Toggle ElevenLabs field
+    document.getElementById('grp-11labs-agent').style.display = (config.provider === 'elevenlabs') ? 'block' : 'none';
 }
+
+// Add event listener for provider change in UI
+document.getElementById('cfg-provider').addEventListener('change', (e) => {
+    document.getElementById('grp-11labs-agent').style.display = (e.target.value === 'elevenlabs') ? 'block' : 'none';
+    // Clear key field when provider changes to show correct saved value
+    document.getElementById('cfg-custom-key').value = localStorage.getItem(`alarab777_custom_key_${e.target.value}`) || '';
+});
 
 function openAdminPanel() {
     document.getElementById('admin-panel').classList.add('open');
